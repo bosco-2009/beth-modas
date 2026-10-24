@@ -46,7 +46,8 @@ function validar(corpo) {
   if (!lista.length) throw new ErroPedido('Seu carrinho está vazio.');
   if (lista.length > 30) throw new ErroPedido('Pedido com itens demais.');
   const itens = lista.map((i) => {
-    const p = catalogo[i && i.ref];
+    // só os produtos do catálogo (um código como "toString" não pode passar)
+    const p = i && Object.prototype.hasOwnProperty.call(catalogo, i.ref) ? catalogo[i.ref] : null;
     if (!p) throw new ErroPedido('Um dos produtos do carrinho não está mais disponível. Atualize o carrinho.');
     const qtd = Number(i.qtd);
     if (!Number.isInteger(qtd) || qtd < 1 || qtd > 20) throw new ErroPedido('Quantidade inválida.');

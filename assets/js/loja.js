@@ -357,7 +357,9 @@
     // CEP: completa rua, bairro e cidade pelo ViaCEP
     var statusCep = $('[data-cep-status]');
     var ultimoCep = '';
+    var cepDosCampos = ''; // CEP do endereço que foi preenchido sozinho (pelo ViaCEP ou pelos dados lembrados)
     var AJUDA_CEP = statusCep ? statusCep.textContent : '';
+    var CAMPOS_ENDERECO = ['rua', 'numero', 'complemento', 'bairro', 'cidade'];
     function preencherSeVazio(campo, valor) {
       if (valor && (!campo.value.trim() || campo.getAttribute('data-auto') === '1')) {
         campo.value = valor;
@@ -367,11 +369,19 @@
     form.cep.addEventListener('input', function () {
       var d = digitos(form.cep.value).slice(0, 8);
       form.cep.value = d.length > 5 ? d.slice(0, 5) + '-' + d.slice(5) : d;
-      if (d.length !== 8 || d === ultimoCep || !window.fetch) {
+      if (d.length !== 8 || d === ultimoCep) {
         if (d.length < 8 && statusCep) statusCep.textContent = AJUDA_CEP;
         return;
       }
       ultimoCep = d;
+      if (d !== cepDosCampos) {
+        // o endereço preenchido sozinho era de outro CEP: não pode ficar misturado com o novo
+        CAMPOS_ENDERECO.forEach(function (n) {
+          if (form[n].getAttribute('data-auto') === '1') { form[n].value = ''; form[n].removeAttribute('data-auto'); }
+        });
+        cepDosCampos = d;
+      }
+      if (!window.fetch) return;
       if (statusCep) statusCep.textContent = 'Buscando o endereço…';
       fetch('https://viacep.com.br/ws/' + d + '/json/')
         .then(function (r) { return r.ok ? r.json() : { erro: true }; })
@@ -391,7 +401,7 @@
           if (statusCep) statusCep.textContent = 'Não deu para buscar o CEP agora. Preencha o endereço.';
         });
     });
-    ['rua', 'bairro', 'cidade'].forEach(function (n) {
+    CAMPOS_ENDERECO.forEach(function (n) {
       form[n].addEventListener('input', function () { form[n].removeAttribute('data-auto'); });
     });
 
@@ -402,6 +412,9 @@
     try { lembrado = JSON.parse(localStorage.getItem(CHAVE_CLIENTE) || 'null'); } catch (e) { lembrado = null; }
     if (lembrado && typeof lembrado === 'object') {
       CAMPOS_LEMBRADOS.forEach(function (n) { if (typeof lembrado[n] === 'string') form[n].value = lembrado[n]; });
+      // o endereço lembrado é trocado se a pessoa digitar outro CEP
+      CAMPOS_ENDERECO.forEach(function (n) { if (form[n].value) form[n].setAttribute('data-auto', '1'); });
+      cepDosCampos = digitos(form.cep.value);
       if (lembrado.entrega === 'entrega') { form.querySelector('input[name="entrega"][value="entrega"]').checked = true; mostrarEntrega(); }
       form.lembrar.checked = true;
     }
@@ -476,6 +489,8 @@
       pagar.classList.toggle('is-ocupado', sim);
       if (URL_PAGAMENTO) pagar.textContent = sim ? 'Abrindo o pagamento…' : 'Ir para o pagamento';
     }
+    // quem volta do Mercado Pago pelo botão Voltar recebe a página como estava: destrava o botão
+    window.addEventListener('pageshow', function (ev) { if (ev.persisted) ocupado(false); });
 
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
@@ -509,10 +524,15 @@
     });
 
     catalogo().then(function (mapa) {
-      itens = itensDetalhados(mapa);
-      vazio.hidden = itens.length > 0;
-      form.hidden = itens.length === 0;
-      desenharResumo();
+      function atualizar() {
+        itens = itensDetalhados(mapa);
+        vazio.hidden = itens.length > 0;
+        form.hidden = itens.length === 0;
+        desenharResumo();
+      }
+      atualizar();
+      // o carrinho pode mudar em outra aba enquanto a pessoa preenche os dados
+      document.addEventListener('beth:carrinho', atualizar);
     }).catch(function () {
       vazio.hidden = false;
       vazio.querySelector('p').textContent = 'Não foi possível carregar o carrinho. Atualize a página.';
@@ -563,7 +583,8 @@
       aprovado: ['ok', 'Pagamento aprovado!', 'Agradecemos a compra. A loja já recebeu o pagamento e vai falar com você pelo WhatsApp para combinar a retirada ou a entrega.', 'meu pagamento foi aprovado'],
       pendente: ['espera', 'Pagamento em processamento', 'Assim que o pagamento for confirmado, a loja recebe o aviso. Se você escolheu Pix ou boleto, conclua o pagamento com o código que o Mercado Pago mostrou.', 'fiz um pedido e o pagamento está em processamento'],
       recusado: ['erro', 'O pagamento não foi concluído', 'Nenhum valor foi cobrado. Seus produtos continuam no carrinho: você pode tentar de novo ou escolher outra forma de pagamento.', 'tive um problema para pagar meu pedido'],
-      enviado: ['ok', 'Pedido enviado!', 'Seu pedido foi para a loja pelo WhatsApp. É só aguardar a resposta com o pagamento.', 'quero finalizar este pedido']
+      // o pedido só chega à loja quando a pessoa toca em enviar no WhatsApp
+      enviado: ['espera', 'Agora é só enviar no WhatsApp', 'O WhatsApp abriu com o seu pedido pronto. Toque em enviar para a loja receber e mandar o pagamento. Se ele não abriu, use o botão abaixo.', 'quero finalizar este pedido']
     };
     var t = textos[resultado];
     if (!t) {
@@ -593,6 +614,8 @@
       resumo.hidden = false;
     }
     $('[data-pedido-whats]').href = linkWhatsPedido(pedido, t[3]);
+    var rotuloWhats = $('[data-pedido-whats-texto]');
+    if (rotuloWhats && resultado === 'enviado') rotuloWhats.textContent = 'Enviar pedido pelo WhatsApp';
     if (resultado === 'recusado') {
       var voltar = $('[data-pedido-voltar]');
       voltar.textContent = 'Tentar de novo';
@@ -601,8 +624,15 @@
     if (resultado === 'aprovado' || resultado === 'pendente' || resultado === 'enviado') limpar();
   }
 
+  function carrinhoMudouFora() {
+    atualizarContador();
+    document.dispatchEvent(new CustomEvent('beth:carrinho'));
+  }
   atualizarContador();
-  window.addEventListener('storage', function (ev) { if (ev.key === CHAVE) atualizarContador(); });
+  // carrinho alterado em outra aba (ev.key é null quando os dados do site são apagados)
+  window.addEventListener('storage', function (ev) { if (ev.key === CHAVE || ev.key === null) carrinhoMudouFora(); });
+  // página restaurada pelo botão Voltar: o carrinho pode ter mudado nesse meio-tempo
+  window.addEventListener('pageshow', function (ev) { if (ev.persisted) carrinhoMudouFora(); });
   iniciarCarrinho();
   iniciarFinalizacao();
   iniciarPedido();

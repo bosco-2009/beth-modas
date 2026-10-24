@@ -21,7 +21,7 @@ import re
 import unicodedata
 from urllib.parse import quote
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELOS = os.path.join(RAIZ, 'ferramentas', 'modelos')
@@ -69,13 +69,13 @@ def sem_acento(texto):
 
 
 def miniatura(foto):
-    """Cria (se faltar) a versão leve da foto para a vitrine: 600x800 em WebP."""
+    """Cria (se faltar) a versão leve da foto para a vitrine: 600x800 em WebP (recorta, nunca estica)."""
     nome = os.path.splitext(foto)[0] + '.webp'
     destino = os.path.join(RAIZ, 'assets', 'img', 'produtos', 'mini', nome)
     origem = os.path.join(RAIZ, 'assets', 'img', 'produtos', foto)
     if not os.path.exists(destino) or os.path.getmtime(destino) < os.path.getmtime(origem):
         os.makedirs(os.path.dirname(destino), exist_ok=True)
-        Image.open(origem).convert('RGB').resize((600, 800), Image.LANCZOS).save(destino, quality=80, method=6)
+        ImageOps.fit(Image.open(origem).convert('RGB'), (600, 800), Image.LANCZOS).save(destino, quality=80, method=6)
     return 'assets/img/produtos/mini/' + nome
 
 
@@ -155,16 +155,18 @@ def rodape():
     return r
 
 
-def pagina(arquivo, titulo, descricao, atual, principal, extra='', flutuante=True, indexar=True, cabeca_extra='', base=''):
+def pagina(arquivo, titulo, descricao, atual, principal, extra='', flutuante=True, indexar=True, cabeca_extra='', raiz=''):
     # no carrinho e na finalização o botão flutuante cobriria o total no celular
     h = cabeca(titulo, descricao, arquivo, indexar).replace('</head>', cabeca_extra + '</head>')
-    if base:
-        # o <base> precisa vir antes de qualquer endereço relativo (CSS, fontes, ícones)
-        h = h.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<base href="' + base + '">', 1)
     conteudo = (h + '\n<body>\n<a class="pular" href="#conteudo">Pular para o conteúdo</a>\n\n'
                 '<div class="fita" aria-hidden="true"><span class="fita__progresso"></span></div>\n\n'
                 + cabecalho(atual) + '<main id="conteudo">\n' + principal + '</main>\n' + rodape() + '\n\n'
                 + (FLUTUANTE if flutuante else '') + extra + SCRIPTS + '\n</body>\n</html>\n')
+    if raiz:
+        # página que aparece em qualquer endereço (404): os caminhos relativos viram absolutos.
+        # Um <base> faria o mesmo, mas levaria "#conteudo" para a página inicial.
+        assert 'srcset=' not in conteudo
+        conteudo = re.sub(r'(\s(?:href|src)=")(?![a-z]+:|#|/)', r'\g<1>' + raiz, conteudo)
     gravar(conteudo, arquivo)
 
 
@@ -421,7 +423,7 @@ pagina('pedido.html', 'Pedido', 'Situação do seu pedido na Beth Modas.', '', f
       <p class="pedido__total">Total: <strong data-pedido-total></strong></p>
     </div>
     <div class="pedido__acoes">
-      <a class="botao" href="https://wa.me/{WHATS}" target="_blank" rel="noopener" data-pedido-whats>{svg_whats}Avisar a loja pelo WhatsApp</a>
+      <a class="botao" href="https://wa.me/{WHATS}" target="_blank" rel="noopener" data-pedido-whats>{svg_whats}<span data-pedido-whats-texto>Avisar a loja pelo WhatsApp</span></a>
       <a class="botao botao--contorno" href="produtos.html" data-pedido-voltar>Continuar comprando</a>
     </div>
   </div>
@@ -484,7 +486,7 @@ documento('privacidade.html', 'Política de privacidade', 'Como a Beth Modas usa
           ])
 
 # ---------------------------------------------------------------- 404.html
-# o GitHub Pages mostra esta página para endereços que não existem; o <base> mantém os links certos
+# o GitHub Pages mostra esta página para endereços que não existem, em qualquer pasta do site
 pagina('404.html', 'Página não encontrada', 'Página não encontrada.', '', '''<section class="pedido secao secao--branca secao--pagina" aria-labelledby="erro-titulo">
   <div class="container pedido__caixa">
     <span class="pedido__selo pedido__selo--espera" aria-hidden="true"></span>
@@ -496,7 +498,7 @@ pagina('404.html', 'Página não encontrada', 'Página não encontrada.', '', ''
     </div>
   </div>
 </section>
-''', indexar=False, base='/beth-modas/')
+''', indexar=False, raiz='/beth-modas/')
 
 # ---------------------------------------------------------------- destaques na página inicial
 destaques = [p for p in produtos if p.get('destaque')][:4]

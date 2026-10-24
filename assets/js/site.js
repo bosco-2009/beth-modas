@@ -835,7 +835,10 @@
     });
 
     // produtos.html#BM-12 abre direto os detalhes desse produto
-    var pedido = porRef(decodeURIComponent(window.location.hash.slice(1)));
+    // (um link cortado, como "#%E0", não pode travar o resto da página)
+    var hash = window.location.hash.slice(1);
+    try { hash = decodeURIComponent(hash); } catch (e) { /* usa o texto como veio */ }
+    var pedido = porRef(hash);
     if (pedido) {
       var alvo = cartao(pedido.ref);
       if (alvo) alvo.scrollIntoView({ block: 'center' });

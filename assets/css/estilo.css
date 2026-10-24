@@ -1754,7 +1754,7 @@ p { margin: 0 0 1em; }
 .checkout__grade[hidden] { display: none; }
 .carrinho__vazio p { margin: 0; font-size: 1.1rem; color: var(--texto-suave); }
 .carrinho__grade,
-.checkout__grade { display: grid; gap: 32px; align-items: start; }
+.checkout__grade { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; align-items: start; }
 @media (min-width: 900px) {
   .carrinho__grade,
   .checkout__grade { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); gap: 48px; }
@@ -1816,6 +1816,7 @@ p { margin: 0 0 1em; }
   position: sticky;
   top: calc(var(--altura-cabecalho) + 20px);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   padding: 26px 24px;
   border: 1px solid var(--linha);
@@ -1833,7 +1834,9 @@ p { margin: 0 0 1em; }
 .resumo__total { padding-top: 12px; border-top: 1px solid var(--linha); font-size: 1.15rem; }
 .resumo__total dt { color: var(--texto); font-weight: 500; }
 .resumo__total dd { font-weight: 600; color: var(--pink); }
-.resumo__acao { width: 100%; margin-top: 6px; }
+/* em celular pequeno o texto do botão quebra a linha em vez de alargar a página */
+.resumo__acao { width: 100%; margin-top: 6px; white-space: normal; text-align: center; }
+@media (max-width: 360px) { .resumo { padding: 22px 18px; } }
 .resumo__acao.is-ocupado { opacity: .75; cursor: progress; }
 .resumo__voltar { justify-self: center; font-size: .92rem; color: var(--texto-suave); }
 .resumo__erro { margin: 0; padding: 12px 14px; border-radius: 10px; background: #fde8ef; color: var(--pink-escuro); font-size: .92rem; font-weight: 500; }
@@ -1842,8 +1845,10 @@ p { margin: 0 0 1em; }
 .resumo__seguro .icone { width: 18px; height: 18px; flex: none; color: var(--ouro-escuro); }
 
 /* finalização */
-.checkout__etapas { display: grid; gap: 22px; }
-.etapa { margin: 0; padding: 24px 22px 26px; border: 1px solid var(--linha); border-radius: 18px; background: var(--branco); }
+.checkout__etapas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+/* min-width: 0 e as colunas minmax(0, 1fr) — sem isso a página passa da largura do celular */
+.etapa { min-width: 0; margin: 0; padding: 24px 22px 26px; border: 1px solid var(--linha); border-radius: 18px; background: var(--branco); }
+@media (max-width: 360px) { .etapa { padding: 20px 16px 22px; } }
 /* a legenda fica dentro da caixa, e não sobre a borda */
 .etapa__titulo { float: left; display: flex; align-items: center; gap: 12px; width: 100%; margin: 0 0 18px; padding: 0; font-family: var(--fonte-titulo); font-size: 1.35rem; color: var(--pink); }
 .etapa__titulo + * { clear: both; margin-top: 0; }
@@ -2049,6 +2054,7 @@ a.peca__foto { color: inherit; text-decoration: none; }
 .pedido__resumo[hidden] { display: none; }
 .pedido__itens { display: grid; gap: 8px; margin: 0 0 12px; padding: 0 0 12px; list-style: none; border-bottom: 1px solid var(--linha); }
 .pedido__itens li { display: flex; justify-content: space-between; gap: 12px; font-size: .95rem; }
+.pedido__itens li span:last-child { flex: none; }
 .pedido__total { margin: 0; text-align: right; }
 .pedido__total strong { color: var(--pink); }
 

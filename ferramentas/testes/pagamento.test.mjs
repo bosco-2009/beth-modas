@@ -95,6 +95,9 @@ test('recusa pedidos inválidos', async () => {
   const casos = [
     [{ ...base, itens: [] }, /vazio/],
     [{ ...base, itens: [{ ref: 'BM-99', qtd: 1 }] }, /não está mais disponível/],
+    [{ ...base, itens: [{ ref: 'toString', qtd: 1 }] }, /não está mais disponível/],
+    [{ ...base, itens: [{ ref: '__proto__', qtd: 1 }] }, /não está mais disponível/],
+    [{ ...base, itens: [null] }, /não está mais disponível/],
     [{ ...base, itens: [{ ref: 'BM-09', tamanho: '', qtd: 1 }] }, /tamanho/],
     [{ ...base, itens: [{ ref: 'BM-12', tamanho: '', qtd: 21 }] }, /Quantidade/],
     [{ ...base, itens: [{ ref: 'BM-12', tamanho: '', qtd: 1 }], metodo: 'cheque' }, /forma de pagamento/],
