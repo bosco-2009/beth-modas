@@ -176,45 +176,35 @@
     if (total < 2) return;
 
     var janela = $('[data-janela]', raiz);
-    var lista = $('.carrossel__slides', raiz);
     var legenda = $('[data-legenda]', raiz);
-    var acao = $('[data-legenda-acao]', raiz);
     var numero = $('[data-atual]', raiz);
     var progresso = $('.carrossel__progresso', raiz);
     var miniatura = $('[data-miniatura]', raiz);
-    var botaoPausa = $('[data-pausa]', raiz);
 
-    var DURACAO = 6500;
+    // troca sozinha a cada 2,5 s, sem parar, e volta para a primeira foto no fim
+    var DURACAO = 2500;
     var atual = 0;
     var decorrido = 0;
     var anterior = null;
     var ocupado = false;
-    var pausaUsuario = false;
-    var pausaMouse = false;
-    var pausaFoco = false;
     var naTela = true;
     var introPronta = doc.classList.contains('intro-ok');
 
     document.addEventListener('beth:intro', function () { introPronta = true; });
 
     function rodando() {
-      return !pausaUsuario && !pausaMouse && !pausaFoco && naTela && introPronta && !document.hidden && !reduzido();
+      return naTela && introPronta && !document.hidden;
     }
 
     function atualizarLegenda() {
       var slide = slides[atual];
       var titulo = slide.getAttribute('data-titulo') || '';
-      var peca = slide.getAttribute('data-peca') || '';
       if (legenda) {
         legenda.classList.add('troca');
         setTimeout(function () {
           legenda.textContent = titulo;
           legenda.classList.remove('troca');
         }, reduzido() ? 0 : 300);
-      }
-      if (acao) {
-        acao.hidden = !peca;
-        acao.setAttribute('data-abrir-peca', peca);
       }
       if (numero) numero.textContent = (atual + 1 < 10 ? '0' : '') + (atual + 1);
       if (miniatura) {
@@ -270,26 +260,6 @@
 
     $$('[data-proxima]', raiz).forEach(function (b) {
       b.addEventListener('click', function () { irPara(atual + 1, 1); });
-    });
-    $$('[data-anterior]', raiz).forEach(function (b) {
-      b.addEventListener('click', function () { irPara(atual - 1, -1); });
-    });
-
-    if (botaoPausa) {
-      botaoPausa.addEventListener('click', function () {
-        pausaUsuario = !pausaUsuario;
-        raiz.classList.toggle('is-pausado', pausaUsuario);
-        botaoPausa.setAttribute('aria-pressed', pausaUsuario ? 'true' : 'false');
-        botaoPausa.setAttribute('aria-label', pausaUsuario ? 'Retomar a troca automática de fotos' : 'Pausar a troca automática de fotos');
-        if (lista) lista.setAttribute('aria-live', pausaUsuario ? 'polite' : 'off');
-      });
-    }
-
-    raiz.addEventListener('mouseenter', function () { pausaMouse = true; });
-    raiz.addEventListener('mouseleave', function () { pausaMouse = false; });
-    raiz.addEventListener('focusin', function () { pausaFoco = true; });
-    raiz.addEventListener('focusout', function (ev) {
-      if (!raiz.contains(ev.relatedTarget)) pausaFoco = false;
     });
     raiz.addEventListener('keydown', function (ev) {
       if (ev.key === 'ArrowRight') { ev.preventDefault(); irPara(atual + 1, 1); }
