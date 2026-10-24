@@ -1,0 +1,167 @@
+{
+  "produtos": [
+    {
+      "ref": "BM-01",
+      "nome": "Bolsa transversal de couro",
+      "cat": "bolsas",
+      "categoria": "Bolsas de couro",
+      "preco": 199.0,
+      "foto": "bolsa-transversal-couro.jpg",
+      "descricao": "Bolsa de couro com alça longa transversal e aba frontal com pesponto aparente. Na foto: tons de preto, marrom e caramelo.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-02",
+      "nome": "Bolsa de mão de couro",
+      "cat": "bolsas",
+      "categoria": "Bolsas de couro",
+      "preco": 384.0,
+      "foto": "bolsa-mao-couro.jpg",
+      "descricao": "Bolsa de couro estruturada, com alças de mão, fivelas douradas e zíper lateral. Na foto: preta, off-white com verde e off-white com marrom.",
+      "tamanhos": [],
+      "destaque": true
+    },
+    {
+      "ref": "BM-03",
+      "nome": "Top de amarrar",
+      "cat": "tops",
+      "categoria": "Tops",
+      "preco": 10.0,
+      "foto": "top-amarrar.jpg",
+      "descricao": "Top de alças finas com nó na frente. Cores: preto, marrom, azul, lilás, pink e laranja.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-04",
+      "nome": "Trio kimono, top e short amarelo",
+      "cat": "combos",
+      "categoria": "Combos",
+      "preco": 89.0,
+      "foto": "trio-kimono-amarelo.jpg",
+      "descricao": "Combo com kimono, top franzido sem alças e short com cordão na cintura, em amarelo com branco.",
+      "tamanhos": [],
+      "destaque": true
+    },
+    {
+      "ref": "BM-05",
+      "nome": "Trio kimono, top e short verde",
+      "cat": "combos",
+      "categoria": "Combos",
+      "preco": 89.0,
+      "foto": "trio-kimono-verde.jpg",
+      "descricao": "Combo com kimono, top franzido sem alças e short com cordão na cintura, em verde com branco.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-06",
+      "nome": "Blusa degagê azul",
+      "cat": "blusas",
+      "categoria": "Blusas",
+      "preco": 40.0,
+      "foto": "blusa-degage-azul.jpg",
+      "descricao": "Blusa sem mangas com decote degagê, em azul claro.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-07",
+      "nome": "Calça de alfaiataria bege",
+      "cat": "calcas",
+      "categoria": "Calças",
+      "preco": 119.99,
+      "foto": "calca-alfaiataria-bege.jpg",
+      "descricao": "Calça de alfaiataria com elástico nas laterais do cós, botão, bolsos e vinco na frente. Na foto, em bege.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-08",
+      "nome": "Blusa forrada azul",
+      "cat": "blusas",
+      "categoria": "Blusas",
+      "preco": 37.0,
+      "foto": "blusa-forrada-azul.jpg",
+      "descricao": "Blusa forrada sem mangas, com decote V. Tamanhos M e G.",
+      "tamanhos": [
+        "M",
+        "G"
+      ]
+    },
+    {
+      "ref": "BM-09",
+      "nome": "Blusa forrada bege",
+      "cat": "blusas",
+      "categoria": "Blusas",
+      "preco": 37.0,
+      "foto": "blusa-forrada-bege.jpg",
+      "descricao": "Blusa forrada sem mangas, com decote V. Tamanhos M e G.",
+      "tamanhos": [
+        "M",
+        "G"
+      ]
+    },
+    {
+      "ref": "BM-10",
+      "nome": "Blusa forrada vermelha",
+      "cat": "blusas",
+      "categoria": "Blusas",
+      "preco": 37.0,
+      "foto": "blusa-forrada-vermelha.jpg",
+      "descricao": "Blusa forrada sem mangas, com decote V. Tamanhos M e G.",
+      "tamanhos": [
+        "M",
+        "G"
+      ]
+    },
+    {
+      "ref": "BM-11",
+      "nome": "Hidratante para bolsas",
+      "cat": "cuidados",
+      "categoria": "Cuidados",
+      "preco": 20.0,
+      "foto": "hidratante-bolsas.jpg",
+      "descricao": "Hidratante para bolsas, em bisnaga com tampa rosa, azul ou branca.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-12",
+      "nome": "Vestido midi com cinto verde-água",
+      "cat": "vestidos",
+      "categoria": "Vestidos",
+      "preco": 135.0,
+      "foto": "vestido-midi-cinto-verde.jpg",
+      "descricao": "Vestido midi sem mangas, com cinto de fivela na cintura e saia evasê, em verde-água.",
+      "tamanhos": [],
+      "destaque": true
+    },
+    {
+      "ref": "BM-13",
+      "nome": "Vestido midi com cinto azul",
+      "cat": "vestidos",
+      "categoria": "Vestidos",
+      "preco": 135.0,
+      "foto": "vestido-midi-cinto-azul.jpg",
+      "descricao": "Vestido midi sem mangas, com cinto de fivela na cintura e saia evasê, em azul.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-14",
+      "nome": "Batom da vovó",
+      "cat": "beleza",
+      "categoria": "Beleza",
+      "preco": 5.0,
+      "foto": "batom-da-vovo.jpg",
+      "descricao": "Batom da vovó com embalagem decorada em dourado. Na foto: roxo, verde, vermelho, azul e rosa.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-15",
+      "nome": "Vestido bordado com bojo",
+      "cat": "vestidos",
+      "categoria": "Vestidos",
+      "preco": 165.0,
+      "foto": "vestido-bordado-bojo.jpg",
+      "descricao": "Vestido longo com bojo, alças finas e bordado de flores. Na foto, em lilás.",
+      "tamanhos": [],
+      "destaque": true
+    }
+  ]
+}

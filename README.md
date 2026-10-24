@@ -1,8 +1,13 @@
-# Beth Modas — prévia do site
+# Beth Modas — site da loja
 
-Prévia online do site vitrine da Beth Modas: https://bosco-2009.github.io/beth-modas/
+Site da Beth Modas: https://bosco-2009.github.io/beth-modas/
 
-A logo, as cores (pink, branco e dourado), as fotos do carrossel e o WhatsApp
-(21) 96595-9409 já são os da loja. Os produtos com preço ficam na página
-produtos.html (bolsas de couro, tops, combos, blusas e calças).
-O site oficial é o projeto em PHP; esta é a versão já renderizada para visualizar no celular.
+- Página inicial com a logo, as cores da marca (pink, branco e dourado) e o carrossel de fotos.
+- `produtos.html`: produtos com preço, filtros por categoria e botão de colocar no carrinho.
+- `carrinho.html` e `finalizar.html`: carrinho e finalização da compra (Pix, boleto, cartão de crédito ou débito).
+- `pedido.html`: situação do pedido depois do pagamento.
+
+O pagamento online usa o Mercado Pago. Para ativar, siga o [PAGAMENTO.md](PAGAMENTO.md);
+enquanto não estiver ativado, a finalização envia o pedido para a loja pelo WhatsApp (21) 96595-9409.
+
+Produtos e preços ficam em `dados/produtos.json`; depois de editar, rode `python3 ferramentas/gerar_paginas.py`.

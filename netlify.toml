@@ -1,0 +1,8 @@
+# Netlify: hospeda a função que cria o pagamento no Mercado Pago (netlify/functions/pagamento.mjs).
+# O site continua no GitHub Pages; aqui só é preciso que a função fique no ar.
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
