@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Finalizar compra | Beth Modas</title>
 <meta name="description" content="Finalize sua compra na Beth Modas com Pix, boleto, cartão de crédito ou débito.">
-<meta name="robots" content="noindex">
 <meta name="theme-color" content="#d6246e">
 <link rel="canonical" href="https://bosco-2009.github.io/beth-modas/finalizar.html">
 <meta property="og:type" content="website">
@@ -19,9 +19,11 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Beth Modas">
 <link rel="preload" href="assets/fonts/bodoni-moda.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/jost.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/estilo.css?v=1792861601">
+<link rel="stylesheet" href="assets/css/estilo.css?v=1792865937">
 <script>
   (function (d) {
     d.classList.add('js');
@@ -108,6 +110,7 @@
             <label class="campo"><span class="campo__rotulo">E-mail</span>
               <input name="email" type="email" autocomplete="email" maxlength="120" required></label>
           </div>
+          <label class="lembrar"><input type="checkbox" name="lembrar" data-lembrar> Lembrar meus dados neste aparelho para a próxima compra</label>
         </fieldset>
 
         <fieldset class="etapa">
@@ -124,7 +127,8 @@
           </div>
           <div class="campos campos--endereco" data-endereco hidden>
             <label class="campo campo--curto"><span class="campo__rotulo">CEP</span>
-              <input name="cep" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
+              <input name="cep" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9" aria-describedby="cep-status"></label>
+            <p class="campo__ajuda" id="cep-status" data-cep-status aria-live="polite">Digite o CEP e o endereço é preenchido sozinho.</p>
             <label class="campo campo--inteiro"><span class="campo__rotulo">Rua</span>
               <input name="rua" type="text" autocomplete="address-line1" maxlength="120"></label>
             <label class="campo campo--curto"><span class="campo__rotulo">Número</span>
@@ -172,6 +176,7 @@
         <p class="resumo__erro" data-checkout-erro role="alert" hidden></p>
         <button class="botao botao--grande resumo__acao" type="submit" data-pagar>Ir para o pagamento</button>
         <p class="resumo__seguro" data-seguro><svg class="icone" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></g></svg><span>Você será levado à página segura do Mercado Pago para pagar.</span></p>
+        <p class="resumo__termos">Ao continuar, você concorda com as <a href="trocas.html">trocas e devoluções</a> e a <a href="privacidade.html">política de privacidade</a>.</p>
         <a class="resumo__voltar" href="carrinho.html">Voltar ao carrinho</a>
       </aside>
     </form>
@@ -183,6 +188,10 @@
     <div class="rodape__marca">
       <a class="marca" href="index.html" aria-label="Beth Modas, voltar ao início"><img class="marca__imagem" src="assets/img/logo.png" alt="" width="339" height="360"><span class="marca__nome">Beth Modas</span></a>
       <p class="rodape__texto">Moda feminina com atendimento e vendas pelo WhatsApp.</p>
+      <p class="rodape__rotulo">Formas de pagamento</p>
+      <ul class="rodape__pagamentos" aria-label="Formas de pagamento">
+        <li>Pix</li><li>Boleto</li><li>Crédito</li><li>Débito</li>
+      </ul>
     </div>
 
     <nav class="rodape__nav" aria-label="Rodapé">
@@ -192,6 +201,9 @@
         <li><a href="index.html#sobre">Sobre a loja</a></li>
         <li><a href="index.html#como-comprar">Como comprar</a></li>
         <li><a href="index.html#instagram">Instagram</a></li>
+        <li><a href="index.html#duvidas">Dúvidas frequentes</a></li>
+        <li><a href="trocas.html">Trocas e devoluções</a></li>
+        <li><a href="privacidade.html">Privacidade</a></li>
         <li><a href="index.html#contato">Contato</a></li>
       </ul>
     </nav>
@@ -210,7 +222,7 @@
   </div>
 </footer>
 
-<script src="assets/js/site.js?v=1792861601" defer></script>
-<script src="assets/js/loja.js?v=1792861601" defer></script>
+<script src="assets/js/site.js?v=1792865937" defer></script>
+<script src="assets/js/loja.js?v=1792865937" defer></script>
 </body>
 </html>

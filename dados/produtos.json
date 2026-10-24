@@ -18,7 +18,8 @@
       "preco": 384.0,
       "foto": "bolsa-mao-couro.jpg",
       "descricao": "Bolsa de couro estruturada, com alças de mão, fivelas douradas e zíper lateral. Na foto: preta, off-white com verde e off-white com marrom.",
-      "tamanhos": []
+      "tamanhos": [],
+      "destaque": true
     },
     {
       "ref": "BM-03",
@@ -38,7 +39,8 @@
       "preco": 89.0,
       "foto": "trio-kimono-amarelo.jpg",
       "descricao": "Combo com kimono, top franzido sem alças e short com cordão na cintura, em amarelo com branco.",
-      "tamanhos": []
+      "tamanhos": [],
+      "destaque": true
     },
     {
       "ref": "BM-05",
@@ -127,7 +129,8 @@
       "preco": 135.0,
       "foto": "vestido-midi-cinto-verde.jpg",
       "descricao": "Vestido midi sem mangas, com cinto de fivela na cintura e saia evasê, em verde-água.",
-      "tamanhos": []
+      "tamanhos": [],
+      "destaque": true
     },
     {
       "ref": "BM-13",
@@ -157,7 +160,8 @@
       "preco": 165.0,
       "foto": "vestido-bordado-bojo.jpg",
       "descricao": "Vestido longo com bojo, alças finas e bordado de flores. Na foto, em lilás.",
-      "tamanhos": []
+      "tamanhos": [],
+      "destaque": true
     }
   ]
 }

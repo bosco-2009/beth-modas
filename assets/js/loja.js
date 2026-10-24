@@ -101,7 +101,7 @@
       var mapa = {};
       try {
         JSON.parse(embutido.textContent).forEach(function (p) {
-          mapa[p.ref] = { nome: p.nome, preco: p.valor, tamanhos: p.tamanhos || [], foto: p.foto };
+          mapa[p.ref] = { nome: p.nome, preco: p.valor, tamanhos: p.tamanhos || [], foto: p.mini || p.foto };
         });
       } catch (e) { /* segue com o mapa vazio */ }
       catalogoPromessa = Promise.resolve(mapa);
@@ -112,7 +112,8 @@
       .then(function (d) {
         var mapa = {};
         (d.produtos || []).forEach(function (p) {
-          mapa[p.ref] = { nome: p.nome, preco: p.preco, tamanhos: p.tamanhos || [], foto: 'assets/img/produtos/' + p.foto };
+          // no carrinho basta a miniatura leve da foto
+          mapa[p.ref] = { nome: p.nome, preco: p.preco, tamanhos: p.tamanhos || [], foto: 'assets/img/produtos/mini/' + p.foto.replace(/\.\w+$/, '.webp') };
         });
         return mapa;
       });
@@ -178,11 +179,12 @@
       return;
     }
 
-    var botao = ev.target.closest('[data-carrinho-add]');
+    var botao = ev.target.closest('[data-carrinho-add], [data-comprar-agora]');
     if (!botao) return;
     var ref = botao.getAttribute('data-ref');
     if (!ref) return;
-    var naJanela = botao.hasAttribute('data-m-carrinho');
+    var naJanela = botao.hasAttribute('data-m-carrinho') || botao.hasAttribute('data-m-comprar');
+    var comprarAgora = botao.hasAttribute('data-comprar-agora');
 
     // peça com tamanho: abre os detalhes para a pessoa escolher
     if (!naJanela && botao.hasAttribute('data-tem-tamanho')) {
@@ -190,6 +192,9 @@
       if (foto) {
         foto.click();
         setTimeout(function () { avisoDaJanela('Escolha o tamanho para colocar no carrinho.'); }, 40);
+      } else {
+        // fora da página de produtos (destaques da página inicial)
+        window.location.href = 'produtos.html#' + encodeURIComponent(ref);
       }
       return;
     }
@@ -209,6 +214,10 @@
         escolhido = marcado.getAttribute('data-tamanho');
       }
       adicionar(ref, escolhido);
+      if (comprarAgora) {
+        window.location.href = 'finalizar.html';
+        return;
+      }
       avisar(p.nome + (escolhido ? ' (' + escolhido + ')' : '') + ' foi para o carrinho.');
       botao.classList.add('is-adicionado');
       setTimeout(function () { botao.classList.remove('is-adicionado'); }, 1400);
@@ -326,10 +335,84 @@
     $$('input[name="entrega"]', form).forEach(function (r) { r.addEventListener('change', mostrarEntrega); });
     mostrarEntrega();
 
+    // WhatsApp no formato (21) 99999-1234 enquanto a pessoa digita
+    function formatarFone(valor) {
+      var d = digitos(valor);
+      if (d.length > 11 && d.slice(0, 2) === '55') d = d.slice(2);
+      d = d.slice(0, 11);
+      if (d.length <= 2) return d.length ? '(' + d : '';
+      var resto = d.slice(2);
+      var meio = resto.length > 8 ? 5 : 4;
+      return '(' + d.slice(0, 2) + ') ' + (resto.length > meio ? resto.slice(0, meio) + '-' + resto.slice(meio) : resto);
+    }
+    form.whatsapp.addEventListener('input', function (ev) {
+      // enquanto a pessoa apaga, não reformata (senão o hífen e o parêntese voltam)
+      if (ev.inputType && ev.inputType.indexOf('delete') === 0) return;
+      form.whatsapp.value = formatarFone(form.whatsapp.value);
+    });
+    form.whatsapp.addEventListener('blur', function () {
+      form.whatsapp.value = formatarFone(form.whatsapp.value);
+    });
+
+    // CEP: completa rua, bairro e cidade pelo ViaCEP
+    var statusCep = $('[data-cep-status]');
+    var ultimoCep = '';
+    var AJUDA_CEP = statusCep ? statusCep.textContent : '';
+    function preencherSeVazio(campo, valor) {
+      if (valor && (!campo.value.trim() || campo.getAttribute('data-auto') === '1')) {
+        campo.value = valor;
+        campo.setAttribute('data-auto', '1');
+      }
+    }
     form.cep.addEventListener('input', function () {
       var d = digitos(form.cep.value).slice(0, 8);
       form.cep.value = d.length > 5 ? d.slice(0, 5) + '-' + d.slice(5) : d;
+      if (d.length !== 8 || d === ultimoCep || !window.fetch) {
+        if (d.length < 8 && statusCep) statusCep.textContent = AJUDA_CEP;
+        return;
+      }
+      ultimoCep = d;
+      if (statusCep) statusCep.textContent = 'Buscando o endereço…';
+      fetch('https://viacep.com.br/ws/' + d + '/json/')
+        .then(function (r) { return r.ok ? r.json() : { erro: true }; })
+        .then(function (e) {
+          if (digitos(form.cep.value) !== d) return;
+          if (e.erro) {
+            if (statusCep) statusCep.textContent = 'CEP não encontrado. Confira o número ou preencha o endereço.';
+            return;
+          }
+          preencherSeVazio(form.rua, e.logradouro);
+          preencherSeVazio(form.bairro, e.bairro);
+          preencherSeVazio(form.cidade, e.localidade && e.uf ? e.localidade + ' - ' + e.uf : e.localidade);
+          if (statusCep) statusCep.textContent = 'Endereço encontrado. Confira e complete com o número.';
+          if (!form.numero.value) form.numero.focus();
+        })
+        .catch(function () {
+          if (statusCep) statusCep.textContent = 'Não deu para buscar o CEP agora. Preencha o endereço.';
+        });
     });
+    ['rua', 'bairro', 'cidade'].forEach(function (n) {
+      form[n].addEventListener('input', function () { form[n].removeAttribute('data-auto'); });
+    });
+
+    // "Lembrar meus dados": guarda só neste aparelho
+    var CHAVE_CLIENTE = 'beth-cliente';
+    var CAMPOS_LEMBRADOS = ['nome', 'whatsapp', 'email', 'cep', 'rua', 'numero', 'complemento', 'bairro', 'cidade'];
+    var lembrado = null;
+    try { lembrado = JSON.parse(localStorage.getItem(CHAVE_CLIENTE) || 'null'); } catch (e) { lembrado = null; }
+    if (lembrado && typeof lembrado === 'object') {
+      CAMPOS_LEMBRADOS.forEach(function (n) { if (typeof lembrado[n] === 'string') form[n].value = lembrado[n]; });
+      if (lembrado.entrega === 'entrega') { form.querySelector('input[name="entrega"][value="entrega"]').checked = true; mostrarEntrega(); }
+      form.lembrar.checked = true;
+    }
+    function guardarCliente() {
+      try {
+        if (!form.lembrar.checked) { localStorage.removeItem(CHAVE_CLIENTE); return; }
+        var dados = { entrega: form.entrega.value };
+        CAMPOS_LEMBRADOS.forEach(function (n) { dados[n] = form[n].value.trim(); });
+        localStorage.setItem(CHAVE_CLIENTE, JSON.stringify(dados));
+      } catch (e) { /* navegação privada: segue sem lembrar */ }
+    }
 
     function falhar(campo, mensagem) {
       erro.textContent = mensagem;
@@ -398,6 +481,7 @@
       ev.preventDefault();
       var pedido = coletar();
       if (!pedido) return;
+      guardarCliente();
 
       if (!URL_PAGAMENTO) {
         guardarPedido(pedido, '');
@@ -494,6 +578,19 @@
       var n = $('[data-pedido-numero]');
       n.hidden = false;
       $('strong', n).textContent = numero;
+    }
+    var resumo = $('[data-pedido-resumo]');
+    if (resumo && pedido && pedido.itens && pedido.itens.length) {
+      var ul = $('[data-pedido-itens]', resumo);
+      pedido.itens.forEach(function (i) {
+        var li = document.createElement('li');
+        li.innerHTML = '<span></span><span></span>';
+        li.firstChild.textContent = i.qtd + '× ' + i.nome + (i.tamanho ? ' (' + i.tamanho + ')' : '');
+        li.lastChild.textContent = reais(i.subtotal);
+        ul.appendChild(li);
+      });
+      $('[data-pedido-total]', resumo).textContent = reais(pedido.total || 0) + ' · ' + (METODOS[pedido.metodo] || '');
+      resumo.hidden = false;
     }
     $('[data-pedido-whats]').href = linkWhatsPedido(pedido, t[3]);
     if (resultado === 'recusado') {

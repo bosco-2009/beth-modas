@@ -347,9 +347,29 @@
     var passo = parseInt(grade.getAttribute('data-inicial'), 10) || 12;
     var limite = passo;
     var filtro = 'todas';
+    var campoBusca = $('[data-busca]');
+    var campoOrdem = $('[data-ordenar]');
+    var vazia = $('[data-vazia]');
+    var termo = '';
+    var ordemOriginal = pecas.slice();
+
+    function normalizar(t) {
+      return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    }
 
     function combina(p) {
-      return filtro === 'todas' || p.getAttribute('data-categoria') === filtro;
+      if (filtro !== 'todas' && p.getAttribute('data-categoria') !== filtro) return false;
+      if (!termo) return true;
+      var texto = p.getAttribute('data-busca') || '';
+      return termo.split(/\s+/).every(function (palavra) { return texto.indexOf(palavra) !== -1; });
+    }
+
+    function ordenar(modo) {
+      var preco = function (p) { return parseFloat(p.getAttribute('data-preco')) || 0; };
+      pecas = ordemOriginal.slice();
+      if (modo === 'menor') pecas.sort(function (a, b) { return preco(a) - preco(b); });
+      if (modo === 'maior') pecas.sort(function (a, b) { return preco(b) - preco(a); });
+      pecas.forEach(function (p) { grade.appendChild(p); });
     }
 
     function desejado() {
@@ -415,8 +435,10 @@
 
       var restantes = Math.max(0, totalCombina - limite);
       if (maisArea) maisArea.hidden = restantes <= 0;
-      if (maisBotao) maisBotao.textContent = 'Ver mais ' + restantes + (restantes === 1 ? ' peça' : ' peças');
-      if (status) status.textContent = totalCombina + (totalCombina === 1 ? ' peça' : ' peças') + ' na vitrine';
+      if (maisBotao) maisBotao.textContent = 'Ver mais ' + restantes + (restantes === 1 ? ' produto' : ' produtos');
+      if (vazia) vazia.hidden = totalCombina > 0;
+      if (status) status.textContent = totalCombina === 0 ? 'Nenhum produto encontrado'
+        : totalCombina + (totalCombina === 1 ? ' produto' : ' produtos') + ' na vitrine';
     }
 
     function moverFio(suave) {
@@ -464,8 +486,39 @@
       if (vitrine) vitrine.scrollIntoView({ behavior: reduzido() ? 'auto' : 'smooth', block: 'start' });
     });
 
+    // busca por nome (sem diferenciar acentos) e ordenação por preço
+    var esperaBusca = null;
+    if (campoBusca) {
+      campoBusca.addEventListener('input', function () {
+        clearTimeout(esperaBusca);
+        esperaBusca = setTimeout(function () {
+          termo = normalizar(campoBusca.value);
+          limite = passo;
+          aplicar(true);
+        }, 160);
+      });
+    }
+    if (campoOrdem) {
+      campoOrdem.addEventListener('change', function () {
+        ordenar(campoOrdem.value);
+        aplicar(false);
+      });
+    }
+    var limparBusca = $('[data-limpar-busca]');
+    if (limparBusca) {
+      limparBusca.addEventListener('click', function () {
+        if (campoBusca) campoBusca.value = '';
+        termo = '';
+        selecionar('todas', true);
+      });
+    }
+
     window.addEventListener('resize', function () { moverFio(false); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { moverFio(false); });
+
+    // produtos.html?categoria=bolsas abre a vitrine já filtrada
+    var categoriaPedida = new URLSearchParams(window.location.search).get('categoria');
+    if (categoriaPedida) selecionar(categoriaPedida, false);
     moverFio(false);
     aplicar(false);
   }
@@ -493,6 +546,8 @@
       tamanhos: $('[data-m-tamanhos]', modal),
       whats: $('[data-m-whats]', modal),
       carrinho: $('[data-m-carrinho]', modal),
+      comprar: $('[data-m-comprar]', modal),
+      compartilhar: $('[data-m-compartilhar]', modal),
       aviso: $('[data-m-aviso]', modal),
       legenda: $('[data-m-legenda]', modal),
       dica: $('[data-m-dica]', modal)
@@ -547,8 +602,38 @@
       c.tamanhosArea.hidden = !(p.tamanhos && p.tamanhos.length);
       if (c.aviso) c.aviso.hidden = true;
       if (c.carrinho) c.carrinho.setAttribute('data-ref', p.ref);
+      if (c.comprar) c.comprar.setAttribute('data-ref', p.ref);
       c.whats.href = p.whatsapp;
       refAtual = p.ref;
+      // o endereço da página aponta para o produto aberto (dá para compartilhar o link)
+      if (window.history && history.replaceState) history.replaceState(null, '', '#' + p.ref);
+    }
+
+    function linkDoProduto(ref) {
+      return window.location.href.split('#')[0] + '#' + ref;
+    }
+
+    if (c.compartilhar) {
+      c.compartilhar.addEventListener('click', function () {
+        var p = porRef(refAtual);
+        if (!p) return;
+        var url = linkDoProduto(p.ref);
+        var rotulo = c.compartilhar.querySelector('span');
+        function avisar(texto) {
+          rotulo.textContent = texto;
+          setTimeout(function () { rotulo.textContent = 'Compartilhar'; }, 2200);
+        }
+        if (navigator.share) {
+          navigator.share({ title: p.nome + ' | Beth Modas', text: p.nome + ' por ' + p.preco + ' na Beth Modas', url: url })
+            .catch(function () { /* a pessoa desistiu de compartilhar */ });
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function () { avisar('Link copiado!'); }, function () {
+            window.open('https://wa.me/?text=' + encodeURIComponent(p.nome + ' na Beth Modas: ' + url), '_blank', 'noopener');
+          });
+        } else {
+          window.open('https://wa.me/?text=' + encodeURIComponent(p.nome + ' na Beth Modas: ' + url), '_blank', 'noopener');
+        }
+      });
     }
 
     // a foto "voa" de um lugar da página para outro
@@ -624,6 +709,10 @@
       aberto = false;
       document.removeEventListener('keydown', teclado);
       tirarZoom();
+
+      if (window.location.hash && window.history && history.replaceState) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
 
       function terminar() {
         modal.hidden = true;
@@ -744,6 +833,17 @@
         abrir(true, gatilhoFoto);
       }
     });
+
+    // produtos.html#BM-12 abre direto os detalhes desse produto
+    var pedido = porRef(decodeURIComponent(window.location.hash.slice(1)));
+    if (pedido) {
+      var alvo = cartao(pedido.ref);
+      if (alvo) alvo.scrollIntoView({ block: 'center' });
+      setTimeout(function () {
+        preencher(pedido);
+        abrir(false, alvo);
+      }, 350);
+    }
   }
 
   /* ------------------------------------------------------------------
