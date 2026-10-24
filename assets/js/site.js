@@ -492,6 +492,8 @@
       tamanhosArea: $('[data-m-tamanhos-area]', modal),
       tamanhos: $('[data-m-tamanhos]', modal),
       whats: $('[data-m-whats]', modal),
+      carrinho: $('[data-m-carrinho]', modal),
+      aviso: $('[data-m-aviso]', modal),
       legenda: $('[data-m-legenda]', modal),
       dica: $('[data-m-dica]', modal)
     };
@@ -533,10 +535,18 @@
       c.tamanhos.innerHTML = '';
       (p.tamanhos || []).forEach(function (t) {
         var li = document.createElement('li');
-        li.textContent = t;
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'tamanho';
+        b.setAttribute('data-tamanho', t);
+        b.setAttribute('aria-pressed', 'false');
+        b.textContent = t;
+        li.appendChild(b);
         c.tamanhos.appendChild(li);
       });
       c.tamanhosArea.hidden = !(p.tamanhos && p.tamanhos.length);
+      if (c.aviso) c.aviso.hidden = true;
+      if (c.carrinho) c.carrinho.setAttribute('data-ref', p.ref);
       c.whats.href = p.whatsapp;
       refAtual = p.ref;
     }
