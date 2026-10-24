@@ -800,6 +800,8 @@ p { margin: 0 0 1em; }
    ========================================================================== */
 .secao { position: relative; padding-block: clamp(76px, 9vw, 132px); }
 .secao--branca { background: var(--branco); }
+/* página interna: o título começa logo abaixo do cabeçalho fixo */
+.secao--pagina { padding-top: calc(var(--altura-cabecalho) + clamp(40px, 6vw, 72px)); }
 .secao--pink {
   background: var(--veludo-luz), var(--pink);
   color: var(--creme);
@@ -1029,7 +1031,7 @@ p { margin: 0 0 1em; }
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   padding: 0;
   overflow: hidden;
   border: 0;
@@ -1205,7 +1207,7 @@ p { margin: 0 0 1em; }
   color: var(--pink);
 }
 .peca__categoria { margin: 5px 0 0; font-size: .84rem; color: var(--texto-suave); }
-.peca__preco { margin: 6px 0 0; font-family: var(--fonte-titulo); font-weight: 500; color: var(--pink); }
+.peca__preco { margin: 6px 0 0; font-family: var(--fonte-texto); font-size: 1.05rem; font-weight: 600; color: var(--pink); }
 .peca__whats {
   display: grid;
   place-items: center;
@@ -1746,7 +1748,7 @@ p { margin: 0 0 1em; }
 .modal__foto { position: relative; margin: 0; background: var(--papel); }
 .modal__moldura {
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   max-height: 72svh;
   margin-inline: auto;
   overflow: hidden;
@@ -1792,7 +1794,7 @@ p { margin: 0 0 1em; }
   color: var(--pink);
 }
 .modal__ref { margin: 0 0 20px; font-size: .86rem; color: var(--texto-suave); }
-.modal__preco { margin: 0 0 16px; font-family: var(--fonte-titulo); font-size: 1.5rem; font-weight: 500; color: var(--pink); }
+.modal__preco { margin: 0 0 16px; font-family: var(--fonte-texto); font-size: 1.5rem; font-weight: 600; color: var(--pink); }
 .modal__preco[hidden] { display: none; }
 .modal__descricao { margin: 0 0 26px; font-size: 1.05rem; line-height: 1.7; }
 .modal__tamanhos[hidden] { display: none; }
