@@ -6,7 +6,8 @@ Saídas:
   produtos.html, carrinho.html, finalizar.html, pedido.html, trocas.html, privacidade.html, 404.html
   index.html (só a seção de destaques), sitemap.xml, robots.txt, .htaccess, manifest.webmanifest
   assets/img/produtos/mini/*.webp  (miniaturas leves para a vitrine)
-  netlify/catalogo.mjs             (preços que o servidor de pagamento usa)
+
+O pagamento (api/pagamento.php) lê os preços direto de dados/produtos.json.
 
 Precisa do Pillow (pip install pillow) para as miniaturas e os ícones.
 
@@ -538,11 +539,12 @@ ErrorDocument 404 /404.html
   RewriteRule ^ https://{DOMINIO}%{{REQUEST_URI}} [L,R=301]
 </IfModule>
 
-# arquivo de controle da publicação automática (GitHub Actions)
+# arquivos que só o servidor usa: o controle da publicação automática (GitHub Actions)
+# e a chave secreta do Mercado Pago (api/config-segredo.php, criada na publicação)
 <IfModule mod_authz_core.c>
-  <Files ".ftp-deploy-sync-state.json">
+  <FilesMatch "^(\\.ftp-deploy-sync-state\\.json|config-segredo\\.php)$">
     Require all denied
-  </Files>
+  </FilesMatch>
 </IfModule>
 ''', '.htaccess')
 
@@ -567,9 +569,3 @@ gravar(json.dumps({
     'background_color': '#ffffff', 'theme_color': '#d6246e',
     'icons': [{'src': f'assets/img/icone-{l}.png', 'sizes': f'{l}x{l}', 'type': 'image/png', 'purpose': 'any'} for l in (192, 512)],
 }, ensure_ascii=False, indent=2) + '\n', 'manifest.webmanifest')
-
-# ---------------------------------------------------------------- preços para o servidor de pagamento
-servidor = {p['ref']: dict(nome=p['nome'], preco=p['preco'], tamanhos=p['tamanhos'], foto=p['foto']) for p in catalogo}
-gravar('// Gerado por ferramentas/gerar_paginas.py a partir de dados/produtos.json. Não edite à mão.\n'
-       'export default ' + json.dumps(servidor, ensure_ascii=False, indent=2) + ';\n',
-       'netlify', 'catalogo.mjs')
