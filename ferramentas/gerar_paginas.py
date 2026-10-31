@@ -4,7 +4,7 @@ Uso (na pasta do projeto):  python3 ferramentas/gerar_paginas.py
 
 Saídas:
   produtos.html, carrinho.html, finalizar.html, pedido.html, trocas.html, privacidade.html, 404.html
-  index.html (só a seção de destaques), sitemap.xml, manifest.webmanifest
+  index.html (só a seção de destaques), sitemap.xml, robots.txt, .htaccess, manifest.webmanifest
   assets/img/produtos/mini/*.webp  (miniaturas leves para a vitrine)
   netlify/catalogo.mjs             (preços que o servidor de pagamento usa)
 
@@ -26,13 +26,13 @@ from PIL import Image, ImageOps
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELOS = os.path.join(RAIZ, 'ferramentas', 'modelos')
 WHATS = '5521965959409'
-SITE = 'https://bosco-2009.github.io/beth-modas/'
+SITE = 'https://bethmodas.com/'
 HOJE = datetime.date.today().isoformat()
 
 # ordem das categorias nos filtros e na vitrine
 CATEGORIAS = [
     ('vestidos', 'Vestidos'), ('blusas', 'Blusas'), ('tops', 'Tops'), ('calcas', 'Calças'),
-    ('combos', 'Combos'), ('bolsas', 'Bolsas'), ('beleza', 'Beleza'), ('cuidados', 'Cuidados'),
+    ('combos', 'Combos'), ('bolsas', 'Bolsas'), ('acessorios', 'Acessórios'), ('beleza', 'Beleza'), ('cuidados', 'Cuidados'),
 ]
 
 
@@ -118,8 +118,7 @@ def cabeca(titulo, descricao, arquivo, indexar=True):
     h = h.replace(f'content="{DESC_INDEX}"', f'content="{esc(descricao)}"')
     h = h.replace('<meta property="og:title" content="Beth Modas | Loja de roupas">',
                   f'<meta property="og:title" content="{titulo} | Beth Modas">')
-    h = h.replace('<link rel="canonical" href="https://bosco-2009.github.io/beth-modas/">',
-                  f'<link rel="canonical" href="https://bosco-2009.github.io/beth-modas/{arquivo}">')
+    h = h.replace(f'<link rel="canonical" href="{SITE}">', f'<link rel="canonical" href="{SITE}{arquivo}">')
     if not indexar:
         h = h.replace('<meta name="viewport"', '<meta name="robots" content="noindex">\n<meta name="viewport"', 1)
     assert f'<title>{titulo} | Beth Modas</title>' in h and 'carrossel' not in h
@@ -486,7 +485,7 @@ documento('privacidade.html', 'Política de privacidade', 'Como a Beth Modas usa
           ])
 
 # ---------------------------------------------------------------- 404.html
-# o GitHub Pages mostra esta página para endereços que não existem, em qualquer pasta do site
+# o servidor mostra esta página para endereços que não existem, em qualquer pasta do site (.htaccess)
 pagina('404.html', 'Página não encontrada', 'Página não encontrada.', '', '''<section class="pedido secao secao--branca secao--pagina" aria-labelledby="erro-titulo">
   <div class="container pedido__caixa">
     <span class="pedido__selo pedido__selo--espera" aria-hidden="true"></span>
@@ -498,7 +497,7 @@ pagina('404.html', 'Página não encontrada', 'Página não encontrada.', '', ''
     </div>
   </div>
 </section>
-''', indexar=False, raiz='/beth-modas/')
+''', indexar=False, raiz='/')
 
 # ---------------------------------------------------------------- destaques na página inicial
 destaques = [p for p in produtos if p.get('destaque')][:4]
@@ -520,7 +519,33 @@ novo_idx, n = re.subn(r'<section class="destaques secao[^"]*" id="destaques".*?<
 assert n == 1, 'seção de destaques não encontrada no index.html'
 gravar(novo_idx, 'index.html')
 
-# ---------------------------------------------------------------- sitemap e "app" na tela inicial
+# ---------------------------------------------------------------- Google, servidor e "app" na tela inicial
+DOMINIO = SITE.split('/')[2]
+gravar(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}sitemap.xml\n', 'robots.txt')
+
+# .htaccess: vale no HostGator (Apache). Página 404 da loja e endereço único: https://bethmodas.com
+gravar(f'''# Gerado por ferramentas/gerar_paginas.py. Não edite à mão.
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # http e www vão para https://bethmodas.com (só neste domínio: outro site na conta não é afetado)
+  RewriteCond %{{HTTP_HOST}} ^(www\\.)?{DOMINIO.replace('.', chr(92) + '.')}$ [NC]
+  # a renovação automática do certificado (AutoSSL) precisa passar sem redirecionar
+  RewriteCond %{{REQUEST_URI}} !^/\\.well-known/
+  RewriteCond %{{HTTPS}} off [OR]
+  RewriteCond %{{HTTP_HOST}} ^www\\. [NC]
+  RewriteRule ^ https://{DOMINIO}%{{REQUEST_URI}} [L,R=301]
+</IfModule>
+
+# arquivo de controle da publicação automática (GitHub Actions)
+<IfModule mod_authz_core.c>
+  <Files ".ftp-deploy-sync-state.json">
+    Require all denied
+  </Files>
+</IfModule>
+''', '.htaccess')
+
 gravar('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
        + ''.join(f'  <url><loc>{SITE}{u}</loc><lastmod>{HOJE}</lastmod></url>\n'
                  for u in ('', 'produtos.html', 'trocas.html', 'privacidade.html'))

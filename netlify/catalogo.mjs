@@ -98,5 +98,29 @@ export default {
     "preco": 165.0,
     "tamanhos": [],
     "foto": "vestido-bordado-bojo.jpg"
+  },
+  "BM-16": {
+    "nome": "Vestido longo de poá azul",
+    "preco": 95.0,
+    "tamanhos": [],
+    "foto": "vestido-longo-poa-azul.jpg"
+  },
+  "BM-17": {
+    "nome": "Conjunto de viscolinho bege",
+    "preco": 120.0,
+    "tamanhos": [],
+    "foto": "conjunto-viscolinho-bege.jpg"
+  },
+  "BM-18": {
+    "nome": "Conjunto cropped verde e short listrado",
+    "preco": 399.0,
+    "tamanhos": [],
+    "foto": "conjunto-cropped-short-listrado.jpg"
+  },
+  "BM-19": {
+    "nome": "Porta-níquel de couro",
+    "preco": 15.0,
+    "tamanhos": [],
+    "foto": "porta-niquel-couro.jpg"
   }
 };
