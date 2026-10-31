@@ -1,0 +1,59 @@
+# Publica o site em https://bethmodas.com (HostGator) a cada mudança aprovada no main.
+#
+# Uma vez só, cadastre em Settings → Secrets and variables → Actions → New repository secret:
+#   FTP_SERVIDOR  servidor FTP do HostGator (ex.: ftp.bethmodas.com)
+#   FTP_USUARIO   usuário da conta FTP (ex.: publicar@bethmodas.com)
+#   FTP_SENHA     senha dessa conta FTP
+# A conta FTP deve ter como pasta a public_html. Se usar outra pasta inicial, crie a variável
+# (aba Variables) FTP_PASTA com o caminho até o site, por exemplo: public_html/
+name: Publicar no bethmodas.com
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# uma publicação por vez, sem cancelar a que já está enviando arquivos
+concurrency:
+  group: publicar-hostgator
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    env:
+      TEM_FTP: ${{ secrets.FTP_SERVIDOR != '' && secrets.FTP_USUARIO != '' && secrets.FTP_SENHA != '' }}
+    steps:
+      - name: Avisar que o acesso FTP ainda não foi cadastrado
+        if: env.TEM_FTP != 'true'
+        run: echo "::notice::Publicação no HostGator desligada. Cadastre FTP_SERVIDOR, FTP_USUARIO e FTP_SENHA nos segredos do repositório."
+
+      - uses: actions/checkout@v4
+        if: env.TEM_FTP == 'true'
+
+      - name: Enviar o site para o HostGator
+        if: env.TEM_FTP == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVIDOR }}
+          username: ${{ secrets.FTP_USUARIO }}
+          password: ${{ secrets.FTP_SENHA }}
+          # FTP com criptografia; o certificado dos servidores compartilhados do HostGator
+          # costuma ser do nome do servidor, e não de ftp.bethmodas.com
+          protocol: ftps
+          security: loose
+          server-dir: ${{ vars.FTP_PASTA || './' }}
+          # só o site vai para o servidor; ferramentas, documentação e a função do Netlify ficam fora
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            ferramentas/**
+            netlify/**
+            netlify.toml
+            README.md
+            PAGAMENTO.md
+            .nojekyll

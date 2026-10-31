@@ -162,6 +162,46 @@
       "descricao": "Vestido longo com bojo, alças finas e bordado de flores. Na foto, em lilás.",
       "tamanhos": [],
       "destaque": true
+    },
+    {
+      "ref": "BM-16",
+      "nome": "Vestido longo de poá azul",
+      "cat": "vestidos",
+      "categoria": "Vestidos",
+      "preco": 95.0,
+      "foto": "vestido-longo-poa-azul.jpg",
+      "descricao": "Vestido longo azul com bolinhas brancas, manga bufante, faixa para amarrar na cintura e barra com babado. Tamanho único.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-17",
+      "nome": "Conjunto de viscolinho bege",
+      "cat": "combos",
+      "categoria": "Combos",
+      "preco": 120.0,
+      "foto": "conjunto-viscolinho-bege.jpg",
+      "descricao": "Conjunto de viscolinho com regata cropped e calça pantalona com bolsos, na cor bege.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-18",
+      "nome": "Conjunto cropped verde e short listrado",
+      "cat": "combos",
+      "categoria": "Combos",
+      "preco": 399.0,
+      "foto": "conjunto-cropped-short-listrado.jpg",
+      "descricao": "Cropped verde de manga longa e short listrado de verde e branco, com cordão na cintura. A mochila da foto não acompanha o conjunto.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-19",
+      "nome": "Porta-níquel de couro",
+      "cat": "acessorios",
+      "categoria": "Acessórios",
+      "preco": 15.0,
+      "foto": "porta-niquel-couro.jpg",
+      "descricao": "Porta-níquel de couro com zíper e forro. Tem várias cores (veja a foto): depois da compra, a cor é combinada com a loja pelo WhatsApp.",
+      "tamanhos": []
     }
   ]
 }

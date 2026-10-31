@@ -1,0 +1,20 @@
+# Gerado por ferramentas/gerar_paginas.py. Não edite à mão.
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # http e www vão para https://bethmodas.com (só neste domínio: outro site na conta não é afetado)
+  RewriteCond %{HTTP_HOST} ^(www\.)?bethmodas\.com$ [NC]
+  # a renovação automática do certificado (AutoSSL) precisa passar sem redirecionar
+  RewriteCond %{REQUEST_URI} !^/\.well-known/
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://bethmodas.com%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# arquivo de controle da publicação automática (GitHub Actions)
+<IfModule mod_authz_core.c>
+  <Files ".ftp-deploy-sync-state.json">
+    Require all denied
+  </Files>
+</IfModule>

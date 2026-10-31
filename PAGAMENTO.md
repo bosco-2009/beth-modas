@@ -9,7 +9,7 @@ Para o dinheiro cair direto na conta da loja, são precisos dois cadastros gratu
 2. **Netlify**: guarda a chave secreta do Mercado Pago e cria cada pagamento.
    A chave nunca pode ficar no site, porque qualquer pessoa conseguiria ler.
 
-O site continua no mesmo endereço do GitHub Pages.
+O site continua no mesmo endereço: https://bethmodas.com.
 
 ## 1. Mercado Pago
 

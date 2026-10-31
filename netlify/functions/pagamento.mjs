@@ -3,17 +3,17 @@
 // Variáveis de ambiente (configuradas no painel do Netlify):
 //   MP_ACCESS_TOKEN  Access Token da conta Mercado Pago da loja (obrigatória; nunca vai para o site)
 //   SITE_URL         endereço do site, para onde o cliente volta depois de pagar
-//                    (padrão: https://bosco-2009.github.io/beth-modas)
+//                    (padrão: https://bethmodas.com)
 //   ORIGENS          sites que podem chamar esta função, separados por vírgula
-//                    (padrão: https://bosco-2009.github.io)
+//                    (padrão: https://bethmodas.com, https://www.bethmodas.com e a cópia no GitHub Pages)
 //   MP_API_URL       só para testes locais (padrão: https://api.mercadopago.com)
 
 import { randomUUID } from 'node:crypto';
 import catalogo from '../catalogo.mjs';
 
 const API = (process.env.MP_API_URL || 'https://api.mercadopago.com').replace(/\/$/, '');
-const SITE = (process.env.SITE_URL || 'https://bosco-2009.github.io/beth-modas').replace(/\/$/, '');
-const ORIGENS = (process.env.ORIGENS || 'https://bosco-2009.github.io').split(',').map((o) => o.trim()).filter(Boolean);
+const SITE = (process.env.SITE_URL || 'https://bethmodas.com').replace(/\/$/, '');
+const ORIGENS = (process.env.ORIGENS || 'https://bethmodas.com,https://www.bethmodas.com,https://bosco-2009.github.io').split(',').map((o) => o.trim()).filter(Boolean);
 
 const METODOS = { pix: 'Pix', boleto: 'Boleto', credito: 'Cartão de crédito', debito: 'Cartão de débito' };
 
