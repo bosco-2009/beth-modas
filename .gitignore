@@ -1,0 +1,2 @@
+# chave do Mercado Pago: criada só na publicação (GitHub Actions), nunca vai para o GitHub
+api/config-segredo.php

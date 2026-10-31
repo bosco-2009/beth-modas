@@ -4,9 +4,25 @@
 (function () {
   'use strict';
 
-  // Endereço do servidor que cria o pagamento no Mercado Pago (veja PAGAMENTO.md).
-  // Enquanto estiver vazio, o pedido vai para a loja pelo WhatsApp.
-  var URL_PAGAMENTO = window.BETH_URL_PAGAMENTO || '';
+  // Servidor que cria o pagamento no Mercado Pago (api/pagamento.php, no HostGator; veja PAGAMENTO.md).
+  // Só existe no bethmodas.com: na cópia do GitHub Pages o pedido vai para a loja pelo WhatsApp.
+  var URL_PAGAMENTO = window.BETH_URL_PAGAMENTO ||
+    (/(^|\.)bethmodas\.com$/.test(window.location.hostname) ? '/api/pagamento.php' : '');
+
+  // O HostGator protege os endereços .php contra robôs: na primeira chamada responde 409 com um script
+  // que grava um cookie (ex.: humans_21909=1) e recarrega a página. Aqui a página faz o mesmo e tenta
+  // de novo, uma vez.
+  function chamarPagamento(opcoes) {
+    return fetch(URL_PAGAMENTO, opcoes).then(function (r) {
+      if (r.status !== 409) return r;
+      return r.clone().text().then(function (t) {
+        var m = /document\.cookie\s*=\s*["']([\w-]+)=([\w-]*)/.exec(t);
+        if (!m) return r;
+        document.cookie = m[1] + '=' + m[2] + '; path=/; SameSite=Lax' + (window.location.protocol === 'https:' ? '; Secure' : '');
+        return fetch(URL_PAGAMENTO, opcoes);
+      });
+    });
+  }
   var WHATS = '5521965959409';
   var CHAVE = 'beth-carrinho';
   var CHAVE_PEDIDO = 'beth-ultimo-pedido';
@@ -306,9 +322,24 @@
     var frete = $('[data-frete]');
     var itens = [];
 
-    if (!URL_PAGAMENTO) {
-      pagar.textContent = 'Enviar pedido pelo WhatsApp';
-      $('[data-seguro] span').textContent = 'Seu pedido vai para a loja pelo WhatsApp, e ela envia o pagamento na forma que você escolher.';
+    // Começa pelo WhatsApp e só liga o pagamento online quando o servidor confirma que a chave do
+    // Mercado Pago está configurada. Com a chave de teste, só liga para quem abre ?teste=1,
+    // para nenhuma cliente cair no ambiente de testes.
+    var online = false;
+    function usarPagamentoOnline(sim) {
+      online = sim;
+      pagar.textContent = sim ? 'Ir para o pagamento' : 'Enviar pedido pelo WhatsApp';
+      $('[data-seguro] span').textContent = sim
+        ? 'Você será levado à página segura do Mercado Pago para pagar.'
+        : 'Seu pedido vai para a loja pelo WhatsApp, e ela envia o pagamento na forma que você escolher.';
+    }
+    usarPagamentoOnline(false);
+    if (URL_PAGAMENTO && window.fetch) {
+      var querTeste = /[?&]teste=1(&|$)/.test(window.location.search);
+      chamarPagamento({ cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { if (d && d.configurado && (!d.teste || querTeste)) usarPagamentoOnline(true); })
+        .catch(function () { /* fora do ar: segue pelo WhatsApp */ });
     }
 
     function desenharResumo() {
@@ -487,7 +518,7 @@
     function ocupado(sim) {
       pagar.disabled = sim;
       pagar.classList.toggle('is-ocupado', sim);
-      if (URL_PAGAMENTO) pagar.textContent = sim ? 'Abrindo o pagamento…' : 'Ir para o pagamento';
+      if (online) pagar.textContent = sim ? 'Abrindo o pagamento…' : 'Ir para o pagamento';
     }
     // quem volta do Mercado Pago pelo botão Voltar recebe a página como estava: destrava o botão
     window.addEventListener('pageshow', function (ev) { if (ev.persisted) ocupado(false); });
@@ -498,7 +529,7 @@
       if (!pedido) return;
       guardarCliente();
 
-      if (!URL_PAGAMENTO) {
+      if (!online) {
         guardarPedido(pedido, '');
         window.open(linkWhatsPedido(lerPedido(), 'quero finalizar este pedido'), '_blank', 'noopener');
         window.location.href = 'pedido.html?resultado=enviado';
@@ -506,7 +537,7 @@
       }
 
       ocupado(true);
-      fetch(URL_PAGAMENTO, {
+      chamarPagamento({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pedido)

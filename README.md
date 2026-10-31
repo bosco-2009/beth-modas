@@ -8,8 +8,9 @@ Uma cópia continua em https://bosco-2009.github.io/beth-modas/.
 - `carrinho.html` e `finalizar.html`: carrinho e finalização da compra (Pix, boleto, cartão de crédito ou débito).
 - `pedido.html`: situação do pedido depois do pagamento.
 
-O pagamento online usa o Mercado Pago. Para ativar, siga o [PAGAMENTO.md](PAGAMENTO.md);
-enquanto não estiver ativado, a finalização envia o pedido para a loja pelo WhatsApp (21) 96595-9409.
+O pagamento online usa o Mercado Pago e roda no próprio HostGator (`api/pagamento.php`).
+Para ativar, siga o [PAGAMENTO.md](PAGAMENTO.md); enquanto não estiver ativado, a finalização envia o pedido
+para a loja pelo WhatsApp (21) 96595-9409.
 
 Produtos e preços ficam em `dados/produtos.json`; depois de editar, rode `python3 ferramentas/gerar_paginas.py`.
 
@@ -29,7 +30,9 @@ Cada mudança aprovada no `main` é enviada sozinha para o HostGator pelo GitHub
 3. Em **Actions → Publicar no bethmodas.com → Run workflow**, rode a primeira publicação.
 
 A senha fica guardada só no GitHub, criptografada: não aparece no site nem no código.
-Só os arquivos do site vão para o servidor (as pastas `ferramentas/`, `netlify/` e a documentação ficam fora).
+Só os arquivos do site vão para o servidor (a pasta `ferramentas/` e a documentação ficam fora).
+Se o segredo `MP_ACCESS_TOKEN` estiver cadastrado, a publicação também grava a chave do Mercado Pago no servidor
+(veja o [PAGAMENTO.md](PAGAMENTO.md)).
 
 O `.htaccess` (gerado pelo `ferramentas/gerar_paginas.py`) mostra a página 404 da loja e leva
 `http://` e `www.` para `https://bethmodas.com`.

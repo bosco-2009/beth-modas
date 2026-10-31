@@ -4,6 +4,7 @@
 #   FTP_SERVIDOR  servidor FTP do HostGator (ex.: ftp.bethmodas.com)
 #   FTP_USUARIO   usuário da conta FTP (ex.: publicar@bethmodas.com)
 #   FTP_SENHA     senha dessa conta FTP
+#   MP_ACCESS_TOKEN  (opcional) Access Token do Mercado Pago: liga o pagamento online (veja PAGAMENTO.md)
 # A conta FTP deve ter como pasta a public_html. Se usar outra pasta inicial, crie a variável
 # (aba Variables) FTP_PASTA com o caminho até o site, por exemplo: public_html/
 name: Publicar no bethmodas.com
@@ -34,6 +35,28 @@ jobs:
       - uses: actions/checkout@v4
         if: env.TEM_FTP == 'true'
 
+      # A chave vai só para o servidor, em api/config-segredo.php (bloqueado pelo .htaccess).
+      # Sem o segredo, o arquivo não é criado e a finalização continua pelo WhatsApp.
+      - name: Preparar a chave do Mercado Pago
+        if: env.TEM_FTP == 'true'
+        env:
+          MP_ACCESS_TOKEN: ${{ secrets.MP_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$MP_ACCESS_TOKEN" ]; then
+            echo "::notice::Pagamento online desligado: o segredo MP_ACCESS_TOKEN não foi cadastrado."
+            exit 0
+          fi
+          if ! printf '%s' "$MP_ACCESS_TOKEN" | grep -Eq '^(APP_USR|TEST)-[A-Za-z0-9-]+$'; then
+            echo "::warning::MP_ACCESS_TOKEN não parece um Access Token do Mercado Pago (começa com APP_USR- ou TEST-). O pagamento online fica desligado."
+            exit 0
+          fi
+          umask 077
+          printf "<?php\n// Criado na publicação (GitHub Actions). Não vai para o GitHub.\nreturn ['token' => '%s'];\n" "$MP_ACCESS_TOKEN" > api/config-segredo.php
+          case "$MP_ACCESS_TOKEN" in
+            TEST-*) echo "::notice::Pagamento online em MODO DE TESTE: só aparece em https://bethmodas.com/finalizar.html?teste=1" ;;
+            *) echo "::notice::Pagamento online LIGADO para todas as clientes." ;;
+          esac
+
       - name: Enviar o site para o HostGator
         if: env.TEM_FTP == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -46,14 +69,12 @@ jobs:
           protocol: ftps
           security: loose
           server-dir: ${{ vars.FTP_PASTA || './' }}
-          # só o site vai para o servidor; ferramentas, documentação e a função do Netlify ficam fora
+          # só o site vai para o servidor; ferramentas e documentação ficam fora
           exclude: |
             **/.git*
             **/.git*/**
             .github/**
             ferramentas/**
-            netlify/**
-            netlify.toml
             README.md
             PAGAMENTO.md
             .nojekyll

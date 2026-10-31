@@ -12,9 +12,10 @@ ErrorDocument 404 /404.html
   RewriteRule ^ https://bethmodas.com%{REQUEST_URI} [L,R=301]
 </IfModule>
 
-# arquivo de controle da publicação automática (GitHub Actions)
+# arquivos que só o servidor usa: o controle da publicação automática (GitHub Actions)
+# e a chave secreta do Mercado Pago (api/config-segredo.php, criada na publicação)
 <IfModule mod_authz_core.c>
-  <Files ".ftp-deploy-sync-state.json">
+  <FilesMatch "^(\.ftp-deploy-sync-state\.json|config-segredo\.php)$">
     Require all denied
-  </Files>
+  </FilesMatch>
 </IfModule>
