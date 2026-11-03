@@ -68,6 +68,12 @@
 
   function chaveDe(i) { return i.ref + '|' + i.tamanho; }
 
+  // A escolha de cada produto é de tamanho (blusas) ou de cor (mochila); fica guardada no mesmo campo.
+  function pedirEscolha(p) {
+    return 'Escolha ' + (p && p.opcao === 'cor' ? 'a cor' : 'o tamanho') + ' para colocar no carrinho.';
+  }
+  function nomeDaEscolha(opcao) { return opcao === 'cor' ? 'Cor' : 'Tamanho'; }
+
   function adicionar(ref, tamanho) {
     var lista = ler();
     var achado = null;
@@ -117,7 +123,7 @@
       var mapa = {};
       try {
         JSON.parse(embutido.textContent).forEach(function (p) {
-          mapa[p.ref] = { nome: p.nome, preco: p.valor, tamanhos: p.tamanhos || [], foto: p.mini || p.foto };
+          mapa[p.ref] = { nome: p.nome, preco: p.valor, tamanhos: p.tamanhos || [], opcao: p.opcao || 'tamanho', foto: p.mini || p.foto };
         });
       } catch (e) { /* segue com o mapa vazio */ }
       catalogoPromessa = Promise.resolve(mapa);
@@ -129,7 +135,7 @@
         var mapa = {};
         (d.produtos || []).forEach(function (p) {
           // no carrinho basta a miniatura leve da foto
-          mapa[p.ref] = { nome: p.nome, preco: p.preco, tamanhos: p.tamanhos || [], foto: 'assets/img/produtos/mini/' + p.foto.replace(/\.\w+$/, '.webp') };
+          mapa[p.ref] = { nome: p.nome, preco: p.preco, tamanhos: p.tamanhos || [], opcao: p.opcao || 'tamanho', foto: 'assets/img/produtos/mini/' + p.foto.replace(/\.\w+$/, '.webp') };
         });
         return mapa;
       });
@@ -147,7 +153,7 @@
     if (validos.length !== lista.length) gravar(validos);
     return validos.map(function (i) {
       var p = mapa[i.ref];
-      return { ref: i.ref, tamanho: i.tamanho, qtd: i.qtd, chave: chaveDe(i), nome: p.nome, preco: p.preco, foto: p.foto, subtotal: p.preco * i.qtd };
+      return { ref: i.ref, tamanho: i.tamanho, opcao: p.opcao, qtd: i.qtd, chave: chaveDe(i), nome: p.nome, preco: p.preco, foto: p.foto, subtotal: p.preco * i.qtd };
     });
   }
 
@@ -207,7 +213,9 @@
       var foto = $('.peca[data-ref="' + ref + '"] [data-abrir-peca]');
       if (foto) {
         foto.click();
-        setTimeout(function () { avisoDaJanela('Escolha o tamanho para colocar no carrinho.'); }, 40);
+        catalogo().then(function (mapa) {
+          setTimeout(function () { avisoDaJanela(pedirEscolha(mapa[ref])); }, 40);
+        });
       } else {
         // fora da página de produtos (destaques da página inicial)
         window.location.href = 'produtos.html#' + encodeURIComponent(ref);
@@ -222,7 +230,7 @@
       if (p.tamanhos.length) {
         var marcado = $('.modal .tamanho[aria-pressed="true"]');
         if (!marcado) {
-          avisoDaJanela('Escolha o tamanho para colocar no carrinho.');
+          avisoDaJanela(pedirEscolha(p));
           var primeiro = $('.modal .tamanho');
           if (primeiro) primeiro.focus();
           return;
@@ -274,7 +282,7 @@
           '<button type="button" class="item__remover" data-remover>Remover</button>';
         $('.item__foto', li).src = i.foto;
         $('.item__nome', li).textContent = i.nome;
-        $('.item__detalhe', li).textContent = i.tamanho ? 'Tamanho ' + i.tamanho : 'Ref. ' + i.ref;
+        $('.item__detalhe', li).textContent = i.tamanho ? nomeDaEscolha(i.opcao) + ': ' + i.tamanho : 'Ref. ' + i.ref;
         $('.item__preco', li).textContent = reais(i.preco) + (i.qtd > 1 ? ' cada' : '');
         $('.item__qtd', li).setAttribute('aria-label', 'Quantidade de ' + i.nome);
         $('.item__numero', li).textContent = i.qtd;
@@ -510,7 +518,7 @@
         metodo: pedido.metodo,
         entrega: pedido.entrega,
         nome: pedido.cliente.nome,
-        itens: itens.map(function (i) { return { nome: i.nome, tamanho: i.tamanho, qtd: i.qtd, subtotal: i.subtotal }; }),
+        itens: itens.map(function (i) { return { nome: i.nome, tamanho: i.tamanho, opcao: i.opcao, qtd: i.qtd, subtotal: i.subtotal }; }),
         total: somar(itens)
       }));
     }
@@ -583,7 +591,7 @@
       if (p.numero) linhas.push('Pedido: ' + p.numero);
       linhas.push('');
       (p.itens || []).forEach(function (i) {
-        linhas.push('• ' + i.qtd + 'x ' + i.nome + (i.tamanho ? ' (tamanho ' + i.tamanho + ')' : '') + ': ' + reais(i.subtotal));
+        linhas.push('• ' + i.qtd + 'x ' + i.nome + (i.tamanho ? ' (' + nomeDaEscolha(i.opcao).toLowerCase() + ' ' + i.tamanho + ')' : '') + ': ' + reais(i.subtotal));
       });
       linhas.push('Total: ' + reais(p.total || 0));
       linhas.push('Pagamento: ' + (METODOS[p.metodo] || '-'));

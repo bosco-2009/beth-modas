@@ -185,13 +185,19 @@
     },
     {
       "ref": "BM-18",
-      "nome": "Conjunto cropped verde e short listrado",
-      "cat": "combos",
-      "categoria": "Combos",
+      "nome": "Mochila de couro",
+      "cat": "bolsas",
+      "categoria": "Bolsas de couro",
       "preco": 399.0,
-      "foto": "conjunto-cropped-short-listrado.jpg",
-      "descricao": "Cropped verde de manga longa e short listrado de verde e branco, com cordão na cintura. A mochila da foto não acompanha o conjunto.",
-      "tamanhos": []
+      "foto": "mochila-couro.jpg",
+      "descricao": "Mochila de couro com aba frontal. Cores: preta, marrom, caramelo e verde. Na foto, a verde; a roupa não acompanha a mochila.",
+      "tamanhos": [
+        "Preta",
+        "Marrom",
+        "Caramelo",
+        "Verde"
+      ],
+      "opcao": "cor"
     },
     {
       "ref": "BM-19",

@@ -219,7 +219,8 @@ def cartao(p, i, na_vitrine=True):
 cartoes = ''.join(cartao(p, i) for i, p in enumerate(produtos))
 
 dados = [dict(ref=p['ref'], nome=p['nome'], categoria=p['categoria'], descricao=p['descricao'], preco=p['preco_txt'],
-              valor=p['preco'], tamanhos=p['tamanhos'], foto='assets/img/produtos/' + p['foto'], mini=p['mini'], w=900, h=1200,
+              valor=p['preco'], tamanhos=p['tamanhos'], opcao=p.get('opcao', 'tamanho'),
+              foto='assets/img/produtos/' + p['foto'], mini=p['mini'], w=900, h=1200,
               whatsapp=p['whatsapp']) for p in produtos]
 
 # dados de produto para o Google (preço em reais em cada item)
