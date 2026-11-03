@@ -107,6 +107,10 @@ test('o preço vem do catálogo, não do navegador', opcoes, async () => {
   assert.equal(enviado.corpo.metadata.total, 'R$ 209,00');
   assert.equal(enviado.cabecalhos.authorization, 'Bearer TEST-123');
   assert.match(enviado.cabecalhos['x-idempotency-key'], /^[0-9a-f-]{36}$/);
+  // a mochila tem cor em vez de tamanho
+  await pedir({ ...simples, itens: [{ ref: 'BM-18', tamanho: 'Caramelo', qtd: 1 }] });
+  assert.equal(enviado.corpo.items[0].title, 'Mochila de couro - cor Caramelo');
+  assert.equal(enviado.corpo.items[0].unit_price, 399);
 });
 
 test('cada forma de pagamento deixa só ela disponível', opcoes, async () => {
@@ -158,6 +162,7 @@ test('recusa pedidos inválidos', opcoes, async () => {
     [{ ...base, itens: [{ ref: '__proto__', qtd: 1 }] }, /não está mais disponível/],
     [{ ...base, itens: [null] }, /não está mais disponível/],
     [{ ...base, itens: [{ ref: 'BM-09', tamanho: '', qtd: 1 }] }, /tamanho/],
+    [{ ...base, itens: [{ ref: 'BM-18', tamanho: 'Rosa', qtd: 1 }] }, /cor válida/],
     [{ ...base, itens: [{ ref: 'BM-12', tamanho: '', qtd: 21 }] }, /Quantidade/],
     [{ ...base, itens: [{ ref: 'BM-12', tamanho: '', qtd: 1.5 }] }, /Quantidade/],
     [{ ...base, itens: [{ ref: 'BM-12', tamanho: '', qtd: 1 }], metodo: 'cheque' }, /forma de pagamento/],

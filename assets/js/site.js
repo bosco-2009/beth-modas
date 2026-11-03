@@ -543,6 +543,7 @@
       preco: $('[data-m-preco]', modal),
       descricao: $('[data-m-descricao]', modal),
       tamanhosArea: $('[data-m-tamanhos-area]', modal),
+      tamanhosRotulo: $('#modal-tamanhos-rotulo', modal),
       tamanhos: $('[data-m-tamanhos]', modal),
       whats: $('[data-m-whats]', modal),
       carrinho: $('[data-m-carrinho]', modal),
@@ -600,6 +601,8 @@
         c.tamanhos.appendChild(li);
       });
       c.tamanhosArea.hidden = !(p.tamanhos && p.tamanhos.length);
+      // a mesma escolha serve para tamanho (blusas) e para cor (mochila)
+      if (c.tamanhosRotulo) c.tamanhosRotulo.textContent = p.opcao === 'cor' ? 'Escolha a cor' : 'Escolha o tamanho';
       if (c.aviso) c.aviso.hidden = true;
       if (c.carrinho) c.carrinho.setAttribute('data-ref', p.ref);
       if (c.comprar) c.comprar.setAttribute('data-ref', p.ref);

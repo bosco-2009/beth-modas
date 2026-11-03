@@ -124,14 +124,16 @@ function validar($corpo, $catalogo)
         if (!is_int($qtd) || $qtd < 1 || $qtd > 20) {
             throw new ErroPedido('Quantidade inválida.');
         }
+        // a escolha do produto é de tamanho (blusas) ou de cor (mochila); vem no mesmo campo
         $tamanho = isset($i['tamanho']) && is_string($i['tamanho']) ? $i['tamanho'] : '';
         $tamanhos = isset($p['tamanhos']) && is_array($p['tamanhos']) ? $p['tamanhos'] : [];
+        $opcao = isset($p['opcao']) && $p['opcao'] === 'cor' ? 'cor' : 'tamanho';
         if ($tamanhos ? !in_array($tamanho, $tamanhos, true) : $tamanho !== '') {
-            throw new ErroPedido('Escolha um tamanho válido para ' . $p['nome'] . '.');
+            throw new ErroPedido(($opcao === 'cor' ? 'Escolha uma cor válida para ' : 'Escolha um tamanho válido para ') . $p['nome'] . '.');
         }
         // o preço sempre vem do catálogo da loja, nunca do navegador
         $itens[] = ['ref' => $ref, 'nome' => (string) $p['nome'], 'foto' => (string) $p['foto'],
-            'preco' => (float) $p['preco'], 'tamanho' => $tamanho, 'qtd' => $qtd];
+            'preco' => (float) $p['preco'], 'tamanho' => $tamanho, 'opcao' => $opcao, 'qtd' => $qtd];
     }
 
     $c = isset($corpo['cliente']) && is_array($corpo['cliente']) ? $corpo['cliente'] : [];
@@ -341,7 +343,7 @@ function montarPreferencia($pedido, $numero, $pagamento, $site)
         'items' => array_map(function ($i) use ($site) {
             return [
                 'id' => $i['ref'],
-                'title' => $i['tamanho'] !== '' ? $i['nome'] . ' - tamanho ' . $i['tamanho'] : $i['nome'],
+                'title' => $i['tamanho'] !== '' ? $i['nome'] . ' - ' . $i['opcao'] . ' ' . $i['tamanho'] : $i['nome'],
                 'quantity' => $i['qtd'],
                 'unit_price' => $i['preco'],
                 'currency_id' => 'BRL',
