@@ -208,6 +208,45 @@
       "foto": "porta-niquel-couro.jpg",
       "descricao": "Porta-níquel de couro com zíper e forro. Tem várias cores (veja a foto): depois da compra, a cor é combinada com a loja pelo WhatsApp.",
       "tamanhos": []
+    },
+    {
+      "ref": "BM-20",
+      "nome": "Vestido curto com laço azul",
+      "cat": "vestidos",
+      "categoria": "Vestidos",
+      "preco": 85.0,
+      "foto": "vestido-curto-laco-azul.jpg",
+      "descricao": "Vestido curto com alças largas, decote quadrado e faixa para amarrar na cintura, em azul-claro. Tamanhos MG e GG.",
+      "tamanhos": [
+        "MG",
+        "GG"
+      ]
+    },
+    {
+      "ref": "BM-21",
+      "nome": "Vestido curto com laço vermelho",
+      "cat": "vestidos",
+      "categoria": "Vestidos",
+      "preco": 85.0,
+      "foto": "vestido-curto-laco-vermelho.jpg",
+      "descricao": "Vestido curto com alças largas, decote quadrado e faixa para amarrar na cintura, em vermelho. Tamanhos MG e GG.",
+      "tamanhos": [
+        "MG",
+        "GG"
+      ]
+    },
+    {
+      "ref": "BM-22",
+      "nome": "Vestido curto com laço verde",
+      "cat": "vestidos",
+      "categoria": "Vestidos",
+      "preco": 85.0,
+      "foto": "vestido-curto-laco-verde.jpg",
+      "descricao": "Vestido curto com alças largas, decote quadrado e faixa para amarrar na cintura, em verde-claro. Tamanhos MG e GG.",
+      "tamanhos": [
+        "MG",
+        "GG"
+      ]
     }
   ]
 }
