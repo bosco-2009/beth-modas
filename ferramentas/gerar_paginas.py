@@ -540,6 +540,18 @@ ErrorDocument 404 /404.html
   RewriteRule ^ https://{DOMINIO}%{{REQUEST_URI}} [L,R=301]
 </IfModule>
 
+# páginas e dados sempre conferidos com o servidor (o HostGator manda guardar por 2 horas): produtos e
+# preços novos aparecem na hora. CSS, JS e fotos continuam guardados; o ?v= muda quando eles mudam.
+<IfModule mod_expires.c>
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/json "access plus 0 seconds"
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\\.(html|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
 # arquivos que só o servidor usa: o controle da publicação automática (GitHub Actions)
 # e a chave secreta do Mercado Pago (api/config-segredo.php, criada na publicação)
 <IfModule mod_authz_core.c>
