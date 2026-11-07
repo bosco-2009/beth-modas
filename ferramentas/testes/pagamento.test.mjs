@@ -96,21 +96,26 @@ const opcoes = { skip: SEM_PHP && 'PHP não instalado' };
 
 test('o preço vem do catálogo, não do navegador', opcoes, async () => {
   const r = await pedir({
-    itens: [{ ref: 'BM-09', tamanho: 'G', qtd: 2, preco: 0.01 }, { ref: 'BM-12', tamanho: '', qtd: 1 }],
+    itens: [{ ref: 'BM-08', tamanho: 'G', qtd: 2, preco: 0.01 }, { ref: 'BM-12', tamanho: '', qtd: 1 }],
     cliente, entrega: { tipo: 'retirada' }, metodo: 'pix',
   });
   assert.equal(r.status, 200);
   const itens = enviado.corpo.items;
   assert.deepEqual(itens.map((i) => [i.id, i.quantity, i.unit_price, i.currency_id]),
-    [['BM-09', 2, 37, 'BRL'], ['BM-12', 1, 135, 'BRL']]);
+    [['BM-08', 2, 37, 'BRL'], ['BM-12', 1, 135, 'BRL']]);
   assert.match(itens[0].title, /tamanho G/);
   assert.equal(enviado.corpo.metadata.total, 'R$ 209,00');
   assert.equal(enviado.cabecalhos.authorization, 'Bearer TEST-123');
   assert.match(enviado.cabecalhos['x-idempotency-key'], /^[0-9a-f-]{36}$/);
-  // a mochila tem cor em vez de tamanho
-  await pedir({ ...simples, itens: [{ ref: 'BM-18', tamanho: 'Caramelo', qtd: 1 }] });
-  assert.equal(enviado.corpo.items[0].title, 'Mochila de couro - cor Caramelo');
-  assert.equal(enviado.corpo.items[0].unit_price, 399);
+});
+
+test('em promoção, cobra o preço promocional', opcoes, async () => {
+  // trio kimono verde: de 89,00 por 59,99; mochila (bolsas com 10%): de 399,00 por 359,10, com cor
+  const r = await pedir({ ...simples, itens: [{ ref: 'BM-05', tamanho: '', qtd: 1 }, { ref: 'BM-18', tamanho: 'Caramelo', qtd: 1 }] });
+  assert.equal(r.status, 200);
+  assert.deepEqual(enviado.corpo.items.map((i) => [i.title, i.unit_price]),
+    [['Trio kimono, top e short verde', 59.99], ['Mochila de couro - cor Caramelo', 359.1]]);
+  assert.equal(enviado.corpo.metadata.total, 'R$ 419,09');
 });
 
 test('cada forma de pagamento deixa só ela disponível', opcoes, async () => {

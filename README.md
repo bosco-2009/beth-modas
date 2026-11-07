@@ -13,6 +13,8 @@ Para ativar, siga o [PAGAMENTO.md](PAGAMENTO.md); enquanto não estiver ativado,
 para a loja pelo WhatsApp (21) 96595-9409.
 
 Produtos e preços ficam em `dados/produtos.json`; depois de editar, rode `python3 ferramentas/gerar_paginas.py`.
+Promoção: acrescente `"promocao": 59.99` (o preço promocional) ao produto; o `"preco"` vira o "De" riscado.
+O site mostra o desconto, o filtro e a seção "Promoções", e o pagamento cobra o promocional. Para encerrar, apague o campo.
 
 ## Publicação no bethmodas.com
 
