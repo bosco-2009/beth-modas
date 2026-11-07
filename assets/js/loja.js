@@ -123,7 +123,7 @@
       var mapa = {};
       try {
         JSON.parse(embutido.textContent).forEach(function (p) {
-          mapa[p.ref] = { nome: p.nome, preco: p.valor, tamanhos: p.tamanhos || [], opcao: p.opcao || 'tamanho', foto: p.mini || p.foto };
+          mapa[p.ref] = { nome: p.nome, preco: p.valor, de: p.valor_de || 0, tamanhos: p.tamanhos || [], opcao: p.opcao || 'tamanho', foto: p.mini || p.foto };
         });
       } catch (e) { /* segue com o mapa vazio */ }
       catalogoPromessa = Promise.resolve(mapa);
@@ -135,7 +135,9 @@
         var mapa = {};
         (d.produtos || []).forEach(function (p) {
           // no carrinho basta a miniatura leve da foto
-          mapa[p.ref] = { nome: p.nome, preco: p.preco, tamanhos: p.tamanhos || [], opcao: p.opcao || 'tamanho', foto: 'assets/img/produtos/mini/' + p.foto.replace(/\.\w+$/, '.webp') };
+          // em promoção, "promocao" é o preço que a cliente paga e "preco" é o de antes
+          var promo = typeof p.promocao === 'number' && p.promocao > 0 && p.promocao < p.preco;
+          mapa[p.ref] = { nome: p.nome, preco: promo ? p.promocao : p.preco, de: promo ? p.preco : 0, tamanhos: p.tamanhos || [], opcao: p.opcao || 'tamanho', foto: 'assets/img/produtos/mini/' + p.foto.replace(/\.\w+$/, '.webp') };
         });
         return mapa;
       });
@@ -153,12 +155,22 @@
     if (validos.length !== lista.length) gravar(validos);
     return validos.map(function (i) {
       var p = mapa[i.ref];
-      return { ref: i.ref, tamanho: i.tamanho, opcao: p.opcao, qtd: i.qtd, chave: chaveDe(i), nome: p.nome, preco: p.preco, foto: p.foto, subtotal: p.preco * i.qtd };
+      return { ref: i.ref, tamanho: i.tamanho, opcao: p.opcao, qtd: i.qtd, chave: chaveDe(i), nome: p.nome, preco: p.preco, de: p.de, foto: p.foto, subtotal: p.preco * i.qtd,
+        economia: p.de > p.preco ? (p.de - p.preco) * i.qtd : 0 };
     });
   }
 
   function somar(itens) {
     return itens.reduce(function (t, i) { return t + i.subtotal; }, 0);
+  }
+
+  // "Você economiza" no resumo, quando há produto em promoção
+  function mostrarEconomia(itens) {
+    var economia = itens.reduce(function (t, i) { return t + i.economia; }, 0);
+    $$('[data-economia]').forEach(function (el) {
+      el.hidden = economia <= 0;
+      $('[data-economia-valor]', el).textContent = reais(economia);
+    });
   }
 
   /* ------------------------------------------------------------------
@@ -283,7 +295,14 @@
         $('.item__foto', li).src = i.foto;
         $('.item__nome', li).textContent = i.nome;
         $('.item__detalhe', li).textContent = i.tamanho ? nomeDaEscolha(i.opcao) + ': ' + i.tamanho : 'Ref. ' + i.ref;
-        $('.item__preco', li).textContent = reais(i.preco) + (i.qtd > 1 ? ' cada' : '');
+        var precoEl = $('.item__preco', li);
+        if (i.de > i.preco) {
+          var de = document.createElement('s');
+          de.textContent = reais(i.de);
+          precoEl.appendChild(de);
+          precoEl.appendChild(document.createTextNode(' '));
+        }
+        precoEl.appendChild(document.createTextNode(reais(i.preco) + (i.qtd > 1 ? ' cada' : '')));
         $('.item__qtd', li).setAttribute('aria-label', 'Quantidade de ' + i.nome);
         $('.item__numero', li).textContent = i.qtd;
         $('[data-menos]', li).disabled = i.qtd <= 1;
@@ -295,6 +314,7 @@
       var total = somar(itens);
       $$('[data-subtotal]').forEach(function (el) { el.textContent = reais(total); });
       $$('[data-total]').forEach(function (el) { el.textContent = reais(total); });
+      mostrarEconomia(itens);
     }
 
     listaEl.addEventListener('click', function (ev) {
@@ -364,6 +384,7 @@
       var total = somar(itens);
       $('[data-subtotal]', form).textContent = reais(total);
       $('[data-total]', form).textContent = reais(total);
+      mostrarEconomia(itens);
     }
 
     function mostrarEntrega() {

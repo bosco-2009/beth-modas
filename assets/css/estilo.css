@@ -886,6 +886,7 @@ p { margin: 0 0 1em; }
 }
 .filtro:hover,
 .filtro.is-ativo { color: var(--pink); }
+.filtro--promo { color: var(--pink); font-weight: 600; }
 .filtro__qtd { margin-left: 2px; font-size: .72em; vertical-align: super; color: var(--ouro-escuro); }
 .filtros__fio {
   position: absolute;
@@ -950,7 +951,8 @@ p { margin: 0 0 1em; }
   .peca__foto:hover::after { transform: translateX(110%); transition: transform 1.2s var(--ease); }
 }
 
-.peca__novo {
+.peca__novo,
+.peca__promo {
   position: absolute;
   top: 14px;
   left: 0;
@@ -1097,6 +1099,8 @@ p { margin: 0 0 1em; }
 }
 .peca__categoria { margin: 5px 0 0; font-size: .84rem; color: var(--texto-suave); }
 .peca__preco { margin: 6px 0 0; font-family: var(--fonte-texto); font-size: 1.05rem; font-weight: 600; color: var(--pink); }
+/* promoção: preço de antes riscado, ao lado do preço que a cliente paga */
+.peca__preco-de { display: block; margin-bottom: 1px; font-size: .84rem; font-weight: 400; color: var(--texto-suave); }
 .peca__whats {
   display: grid;
   place-items: center;
@@ -1534,6 +1538,19 @@ p { margin: 0 0 1em; }
 .modal__compartilhar .icone { width: 16px; height: 16px; }
 .modal__preco { margin: 0 0 16px; font-family: var(--fonte-texto); font-size: 1.5rem; font-weight: 600; color: var(--pink); }
 .modal__preco[hidden] { display: none; }
+.modal__preco-de { font-size: 1rem; font-weight: 400; color: var(--texto-suave); }
+.modal__desconto {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--pink);
+  color: var(--creme);
+  font-size: .8rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.modal__preco-de[hidden],
+.modal__desconto[hidden] { display: none; }
 .modal__descricao { margin: 0 0 26px; font-size: 1.05rem; line-height: 1.7; }
 .modal__tamanhos[hidden] { display: none; }
 .modal__rotulo { margin: 0 0 8px; font-size: .86rem; color: var(--texto-suave); }
@@ -1829,6 +1846,9 @@ p { margin: 0 0 1em; }
 .resumo__item-valor { flex: none; font-weight: 500; }
 .resumo__linhas { display: grid; gap: 10px; margin: 0; }
 .resumo__linhas div { display: flex; justify-content: space-between; gap: 12px; }
+.resumo__linhas div[hidden] { display: none; }
+.resumo__economia dd { color: var(--pink); font-weight: 600; }
+.item__preco s { margin-right: 4px; }
 .resumo__linhas dt { color: var(--texto-suave); }
 .resumo__linhas dd { margin: 0; text-align: right; }
 .resumo__total { padding-top: 12px; border-top: 1px solid var(--linha); font-size: 1.15rem; }

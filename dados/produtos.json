@@ -6,6 +6,7 @@
       "cat": "bolsas",
       "categoria": "Bolsas de couro",
       "preco": 199.0,
+      "promocao": 179.1,
       "foto": "bolsa-transversal-couro.jpg",
       "descricao": "Bolsa de couro com alça longa transversal e aba frontal com pesponto aparente. Na foto: tons de preto, marrom e caramelo.",
       "tamanhos": []
@@ -16,6 +17,7 @@
       "cat": "bolsas",
       "categoria": "Bolsas de couro",
       "preco": 384.0,
+      "promocao": 345.6,
       "foto": "bolsa-mao-couro.jpg",
       "descricao": "Bolsa de couro estruturada, com alças de mão, fivelas douradas e zíper lateral. Na foto: preta, off-white com verde e off-white com marrom.",
       "tamanhos": [],
@@ -48,6 +50,7 @@
       "cat": "combos",
       "categoria": "Combos",
       "preco": 89.0,
+      "promocao": 59.99,
       "foto": "trio-kimono-verde.jpg",
       "descricao": "Combo com kimono, top franzido sem alças e short com cordão na cintura, em verde com branco.",
       "tamanhos": []
@@ -68,6 +71,7 @@
       "cat": "calcas",
       "categoria": "Calças",
       "preco": 119.99,
+      "promocao": 70.0,
       "foto": "calca-alfaiataria-bege.jpg",
       "descricao": "Calça de alfaiataria com elástico nas laterais do cós, botão, bolsos e vinco na frente. Na foto, em bege.",
       "tamanhos": []
@@ -91,6 +95,7 @@
       "cat": "blusas",
       "categoria": "Blusas",
       "preco": 37.0,
+      "promocao": 20.0,
       "foto": "blusa-forrada-bege.jpg",
       "descricao": "Blusa forrada sem mangas, com decote V. Tamanhos M e G.",
       "tamanhos": [
@@ -138,6 +143,7 @@
       "cat": "vestidos",
       "categoria": "Vestidos",
       "preco": 135.0,
+      "promocao": 70.0,
       "foto": "vestido-midi-cinto-azul.jpg",
       "descricao": "Vestido midi sem mangas, com cinto de fivela na cintura e saia evasê, em azul.",
       "tamanhos": []
@@ -158,6 +164,7 @@
       "cat": "vestidos",
       "categoria": "Vestidos",
       "preco": 165.0,
+      "promocao": 80.0,
       "foto": "vestido-bordado-bojo.jpg",
       "descricao": "Vestido longo com bojo, alças finas e bordado de flores. Na foto, em lilás.",
       "tamanhos": [],
@@ -189,6 +196,7 @@
       "cat": "bolsas",
       "categoria": "Bolsas de couro",
       "preco": 399.0,
+      "promocao": 359.1,
       "foto": "mochila-couro.jpg",
       "descricao": "Mochila de couro com aba frontal. Cores: preta, marrom, caramelo e verde. Na foto, a verde; a roupa não acompanha a mochila.",
       "tamanhos": [

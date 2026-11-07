@@ -358,7 +358,11 @@
     }
 
     function combina(p) {
-      if (filtro !== 'todas' && p.getAttribute('data-categoria') !== filtro) return false;
+      if (filtro === 'promocoes') {
+        if (!p.hasAttribute('data-promocao')) return false;
+      } else if (filtro !== 'todas' && p.getAttribute('data-categoria') !== filtro) {
+        return false;
+      }
       if (!termo) return true;
       var texto = p.getAttribute('data-busca') || '';
       return termo.split(/\s+/).every(function (palavra) { return texto.indexOf(palavra) !== -1; });
@@ -541,6 +545,9 @@
       nome: $('[data-m-nome]', modal),
       ref: $('[data-m-ref]', modal),
       preco: $('[data-m-preco]', modal),
+      precoArea: $('[data-m-preco-area]', modal),
+      precoDe: $('[data-m-preco-de]', modal),
+      desconto: $('[data-m-desconto]', modal),
       descricao: $('[data-m-descricao]', modal),
       tamanhosArea: $('[data-m-tamanhos-area]', modal),
       tamanhosRotulo: $('#modal-tamanhos-rotulo', modal),
@@ -586,7 +593,12 @@
       c.nome.textContent = p.nome;
       c.ref.textContent = p.ref;
       c.preco.textContent = p.preco || '';
-      c.preco.hidden = !p.preco;
+      c.precoArea.hidden = !p.preco;
+      // promoção: preço antigo riscado e o desconto
+      c.precoDe.textContent = p.de ? 'De ' + p.de : '';
+      c.precoDe.hidden = !p.de;
+      c.desconto.textContent = p.de ? '-' + p.desconto + '%' : '';
+      c.desconto.hidden = !p.de;
       c.descricao.textContent = p.descricao || '';
       c.tamanhos.innerHTML = '';
       (p.tamanhos || []).forEach(function (t) {

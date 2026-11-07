@@ -87,9 +87,15 @@ for p in catalogo:
     assert p['cat'] in ordem, f'categoria desconhecida: {p["cat"]}'
 produtos = sorted(catalogo, key=lambda p: ordem.index(p['cat']))
 for p in produtos:
-    p['preco_txt'] = reais(p['preco'])
+    # promoção: "promocao" é o preço que a cliente paga; "preco" vira o "de"
+    promo = p.get('promocao')
+    assert promo is None or 0 < promo < p['preco'], f'promoção precisa ser menor que o preço: {p["ref"]}'
+    p['valor'] = promo if promo is not None else p['preco']
+    p['preco_txt'] = reais(p['valor'])
+    p['de_txt'] = reais(p['preco']) if promo is not None else ''
+    p['desconto'] = round((1 - p['valor'] / p['preco']) * 100) if promo is not None else 0
     p['mini'] = miniatura(p['foto'])
-    p['busca'] = sem_acento(p['nome'] + ' ' + p['categoria'])
+    p['busca'] = sem_acento(p['nome'] + ' ' + p['categoria'] + (' promocao oferta desconto' if promo is not None else ''))
     msg = f'Olá, Beth Modas! Vi no site o produto *{p["nome"]}* ({p["preco_txt"]}, ref. {p["ref"]}) e queria saber mais.'
     p['whatsapp'] = f'https://wa.me/{WHATS}?text=' + quote(msg, safe='')
 
@@ -177,6 +183,10 @@ for p in produtos:
 botoes = ''.join(f'''
                 <button type="button" class="filtro" data-filtro="{k}" aria-pressed="false">{n} <span class="filtro__qtd">{cont[k]}</span></button>'''
                  for k, n in CATEGORIAS if k in cont)
+em_promocao = sorted((p for p in produtos if p['de_txt']), key=lambda p: -p['desconto'])
+if em_promocao:
+    botoes = f'''
+                <button type="button" class="filtro filtro--promo" data-filtro="promocoes" aria-pressed="false">Promoções <span class="filtro__qtd">{len(em_promocao)}</span></button>''' + botoes
 TAMANHOS_IMG = '(min-width: 1100px) 290px, (min-width: 640px) 31vw, 46vw'
 
 
@@ -193,18 +203,22 @@ def cartao(p, i, na_vitrine=True):
             <span class="etiqueta__rotulo">ref.</span><span class="etiqueta__valor">{num}</span>
           </span>
           <span class="peca__ver" aria-hidden="true">{svg_ver}Ver detalhes</span>'''
+    if p['de_txt']:
+        miolo += f'\n          <span class="peca__promo" aria-hidden="true">-{p["desconto"]}%</span>'
+    preco = (f'<s class="peca__preco-de"><span class="sr">De </span>{p["de_txt"]}</s> <span class="sr">por </span>{p["preco_txt"]}'
+             if p['de_txt'] else p['preco_txt'])
     if na_vitrine:
         foto = f'<button type="button" class="peca__foto" data-abrir-peca="{p["ref"]}">\n          {miolo}\n        </button>'
     else:
         foto = f'<a class="peca__foto" href="produtos.html#{p["ref"]}">\n          {miolo}\n        </a>'
     return f'''
-      <li class="peca" data-ref="{p['ref']}" data-categoria="{p['cat']}" data-preco="{p['preco']:.2f}" data-busca="{esc(p['busca'])}" style="--i:{i}">
+      <li class="peca" data-ref="{p['ref']}" data-categoria="{p['cat']}" data-preco="{p['valor']:.2f}"{' data-promocao' if p['de_txt'] else ''} data-busca="{esc(p['busca'])}" style="--i:{i}">
         {foto}
         <div class="peca__info">
           <div class="peca__textos">
             <h3 class="peca__nome">{nome}</h3>
             <p class="peca__categoria">{esc(p['categoria'])}</p>
-            <p class="peca__preco">{p['preco_txt']}</p>
+            <p class="peca__preco">{preco}</p>
           </div>
           <a class="peca__whats" href="{p['whatsapp']}" target="_blank" rel="noopener">
             {svg_whats}<span class="sr">Pedir {nome} pelo WhatsApp</span>
@@ -219,7 +233,7 @@ def cartao(p, i, na_vitrine=True):
 cartoes = ''.join(cartao(p, i) for i, p in enumerate(produtos))
 
 dados = [dict(ref=p['ref'], nome=p['nome'], categoria=p['categoria'], descricao=p['descricao'], preco=p['preco_txt'],
-              valor=p['preco'], tamanhos=p['tamanhos'], opcao=p.get('opcao', 'tamanho'),
+              valor=p['valor'], de=p['de_txt'], valor_de=p['preco'] if p['de_txt'] else None, desconto=p['desconto'], tamanhos=p['tamanhos'], opcao=p.get('opcao', 'tamanho'),
               foto='assets/img/produtos/' + p['foto'], mini=p['mini'], w=900, h=1200,
               whatsapp=p['whatsapp']) for p in produtos]
 
@@ -232,7 +246,7 @@ lista_google = {
             '@type': 'Product', 'name': p['nome'], 'sku': p['ref'], 'category': p['categoria'],
             'description': p['descricao'], 'image': SITE + 'assets/img/produtos/' + p['foto'],
             'url': SITE + 'produtos.html#' + p['ref'],
-            'offers': {'@type': 'Offer', 'price': f"{p['preco']:.2f}", 'priceCurrency': 'BRL',
+            'offers': {'@type': 'Offer', 'price': f"{p['valor']:.2f}", 'priceCurrency': 'BRL',
                        'url': SITE + 'produtos.html#' + p['ref']},
         },
     } for i, p in enumerate(produtos)],
@@ -307,6 +321,7 @@ pagina('carrinho.html', 'Carrinho', 'Seu carrinho na Beth Modas.', 'carrinho.htm
         <h2 class="resumo__titulo" id="resumo-titulo">Resumo</h2>
         <dl class="resumo__linhas">
           <div><dt>Produtos</dt><dd data-subtotal>R$ 0,00</dd></div>
+          <div class="resumo__economia" data-economia hidden><dt>Você economiza</dt><dd data-economia-valor></dd></div>
           <div><dt>Frete</dt><dd>Retirada grátis ou a combinar</dd></div>
           <div class="resumo__total"><dt>Total</dt><dd data-total>R$ 0,00</dd></div>
         </dl>
@@ -398,6 +413,7 @@ pagina('finalizar.html', 'Finalizar compra', 'Finalize sua compra na Beth Modas 
         <ul class="resumo__itens" data-resumo-itens></ul>
         <dl class="resumo__linhas">
           <div><dt>Produtos</dt><dd data-subtotal>R$ 0,00</dd></div>
+          <div class="resumo__economia" data-economia hidden><dt>Você economiza</dt><dd data-economia-valor></dd></div>
           <div><dt>Frete</dt><dd data-frete>Retirada na loja</dd></div>
           <div class="resumo__total"><dt>Total</dt><dd data-total>R$ 0,00</dd></div>
         </dl>
@@ -519,6 +535,27 @@ secao_destaques = f'''<section class="destaques secao secao--branca" id="destaqu
 </section>'''
 novo_idx, n = re.subn(r'<section class="destaques secao[^"]*" id="destaques".*?</section>', lambda m: secao_destaques, idx, flags=re.S)
 assert n == 1, 'seção de destaques não encontrada no index.html'
+
+# promoções na página inicial (some sozinha quando nenhum produto estiver em promoção)
+novo_idx = re.sub(r'<section class="promocoes secao[^"]*" id="promocoes".*?</section>\n\n', '', novo_idx, flags=re.S)
+if em_promocao:
+    maior = max(p['desconto'] for p in em_promocao)
+    secao_promocoes = f'''<section class="promocoes secao" id="promocoes" aria-labelledby="promocoes-titulo">
+  <div class="container">
+    <div class="secao__cabeca secao__cabeca--linha">
+      <h2 class="secao__titulo" id="promocoes-titulo">Promoções</h2>
+      <p class="secao__texto">Peças com até {maior}% de desconto. O preço promocional já vem no carrinho e no pagamento.</p>
+    </div>
+    <ul class="vitrine__grade destaques__grade">{''.join(cartao(p, i, na_vitrine=False) for i, p in enumerate(em_promocao[:8]))}
+    </ul>
+    <div class="destaques__acao">
+      <a class="botao botao--grande" href="produtos.html?categoria=promocoes">Ver todas as promoções</a>
+    </div>
+  </div>
+</section>
+
+'''
+    novo_idx = novo_idx.replace('<section class="destaques secao', secao_promocoes + '<section class="destaques secao', 1)
 gravar(novo_idx, 'index.html')
 
 # ---------------------------------------------------------------- Google, servidor e "app" na tela inicial

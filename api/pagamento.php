@@ -131,9 +131,13 @@ function validar($corpo, $catalogo)
         if ($tamanhos ? !in_array($tamanho, $tamanhos, true) : $tamanho !== '') {
             throw new ErroPedido(($opcao === 'cor' ? 'Escolha uma cor válida para ' : 'Escolha um tamanho válido para ') . $p['nome'] . '.');
         }
-        // o preço sempre vem do catálogo da loja, nunca do navegador
+        // o preço sempre vem do catálogo da loja, nunca do navegador; em promoção, vale o promocional
+        $preco = (float) $p['preco'];
+        if (isset($p['promocao']) && is_numeric($p['promocao']) && $p['promocao'] > 0 && $p['promocao'] < $preco) {
+            $preco = (float) $p['promocao'];
+        }
         $itens[] = ['ref' => $ref, 'nome' => (string) $p['nome'], 'foto' => (string) $p['foto'],
-            'preco' => (float) $p['preco'], 'tamanho' => $tamanho, 'opcao' => $opcao, 'qtd' => $qtd];
+            'preco' => $preco, 'tamanho' => $tamanho, 'opcao' => $opcao, 'qtd' => $qtd];
     }
 
     $c = isset($corpo['cliente']) && is_array($corpo['cliente']) ? $corpo['cliente'] : [];
