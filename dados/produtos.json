@@ -255,6 +255,36 @@
         "MG",
         "GG"
       ]
+    },
+    {
+      "ref": "BM-23",
+      "nome": "T-shirt plus size Teddy Bear",
+      "cat": "blusas",
+      "categoria": "Blusas",
+      "preco": 45.0,
+      "foto": "tshirt-plus-size-teddy-bear.jpg",
+      "descricao": "T-shirt plus size de malha, modelagem ampla, com a estampa \"Stylish Teddy Bear\". Na foto, na cor bege.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-24",
+      "nome": "T-shirt de corações azul",
+      "cat": "blusas",
+      "categoria": "Blusas",
+      "preco": 30.0,
+      "foto": "tshirt-coracoes-azul.jpg",
+      "descricao": "T-shirt azul com três corações azuis no peito. Tamanho único. A saia da foto não acompanha.",
+      "tamanhos": []
+    },
+    {
+      "ref": "BM-25",
+      "nome": "T-shirt de corações verde",
+      "cat": "blusas",
+      "categoria": "Blusas",
+      "preco": 30.0,
+      "foto": "tshirt-coracoes-verde.jpg",
+      "descricao": "T-shirt verde com quatro corações rosa no peito. Tamanho único. A saia da foto não acompanha.",
+      "tamanhos": []
     }
   ]
 }
